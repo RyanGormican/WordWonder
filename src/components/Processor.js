@@ -35,8 +35,8 @@ const [words,setWords] = useState(0);
     });
   };
   return (
-    <div className="processor">
-    <span className="activity">
+    <div>
+      <span className="activity">
         <button onClick={italicizeText}>
     <Icon icon="ooui:italic-a" height="30" />
         </button>
@@ -51,6 +51,7 @@ const [words,setWords] = useState(0);
     </button>
   {words === 0 || words > 1 ? `${words} words` : `${words} word`}
     </span>
+    <div className="processor">
        <Editor
         editorState={editorState}
       onChange={(newEditorState) => {
@@ -60,6 +61,7 @@ const [words,setWords] = useState(0);
       wrapperClassName="processor-wrapper"
         editorClassName="processor-editor"
        />
+    </div>
     </div>
   );
 };

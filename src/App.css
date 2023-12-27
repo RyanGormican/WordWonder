@@ -33,13 +33,14 @@ top:20px;
 }
 .processor{
    border: 1px solid white;
-   width:50vw;
+   width:75vw;
    height:75vh;
    overflow-y: auto; 
 }
 .activity{
 flex-direction:row;
 align-items:center;
+
 }
 .App-link {
   color: #61dafb;
