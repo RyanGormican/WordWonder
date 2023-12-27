@@ -33,6 +33,8 @@ top:20px;
 }
 .processor{
    border: 1px solid white;
+   width:50vw;
+   height:75vh;
 }
 .App-link {
   color: #61dafb;

@@ -6,8 +6,9 @@ const Processor = () => {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
 
   return (
-    <div className="processor"={{ height: '50vh', width: '50vw' }}>
+    <div className="processor">
       <Editor
+      className="processor"
         editorState={editorState}
        onChange={setEditorState}
       />
