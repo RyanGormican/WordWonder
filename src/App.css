@@ -37,6 +37,10 @@ top:20px;
    height:75vh;
    overflow-y: auto; 
 }
+.activity{
+flex-direction:row;
+align-items:center;
+}
 .App-link {
   color: #61dafb;
 }
