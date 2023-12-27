@@ -35,9 +35,17 @@ top:20px;
    border: 1px solid white;
    width:50vw;
    height:75vh;
+   overflow-y: auto; 
 }
 .App-link {
   color: #61dafb;
+}
+processor-wrapper {
+  height: 100%; 
+}
+
+.processor-editor {
+  height: 100%; 
 }
 
 @keyframes App-logo-spin {
