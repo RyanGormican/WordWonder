@@ -36,6 +36,8 @@ top:20px;
    width:75vw;
    height:75vh;
    overflow-y: auto; 
+   background-color: white;
+   color:black;
 }
 .activity{
 flex-direction:row;
