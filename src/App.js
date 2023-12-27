@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { Icon } from '@iconify/react';
 import Processor from './components/Processor';
