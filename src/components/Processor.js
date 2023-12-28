@@ -9,21 +9,67 @@ import Button from '@mui/material/Button';
 
 const Processor = () => {
   const [words, setWords] = useState(0);
-  const [editorState, setEditorState] = useState(() =>
-    EditorState.createEmpty()
-  );
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [fontSize, setFontSize] = useState(12);
   const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
-
+   const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
+ 
   const toggleInlineStyle = (style) => {
     if (style === 'SUBSCRIPT' || style === 'SUPERSCRIPT') {
       applySubSuperscript(style);
     } else {
-      setEditorState((prevEditorState) =>
-        RichUtils.toggleInlineStyle(prevEditorState, style)
-      );
+      if (style.startsWith('fontSize')) {
+        setFontSize(parseInt(style.replace('fontSize-', ''), 10));
+      } else {
+        setEditorState((prevEditorState) =>
+          RichUtils.toggleInlineStyle(prevEditorState, style)
+        );
+      }
     }
   };
 
+ const handleFontSizeIncrease = () => {
+    toggleInlineStyle(`fontSize-${fontSize + 1}`);
+  };
+
+  const handleFontSizeDecrease = () => {
+    toggleInlineStyle(`fontSize-${fontSize - 1}`);
+  };
+
+    const changeFontSize = (fontSize) => {
+    const selection = editorState.getSelection();
+    const contentState = editorState.getCurrentContent();
+    const currentStyle = editorState.getCurrentInlineStyle();
+
+    const newContentState = Modifier.mergeInlineStyle(
+      contentState,
+      selection,
+      currentStyle.remove('fontSize')
+    );
+
+    const fontSizeStyle = fontSize ? currentStyle.add(`fontSize-${fontSize}`) : currentStyle;
+    
+    const finalContentState = Modifier.applyInlineStyle(
+      newContentState,
+      selection,
+      fontSizeStyle
+    );
+
+    const newEditorState = EditorState.push(
+      editorState,
+      finalContentState,
+      'change-inline-style'
+    );
+
+    setEditorState(newEditorState);
+  };
+   const handleTextStylesClick = (event) => {
+    setTextStylesAnchorEl(event.currentTarget);
+  };
+
+  const handleTextStylesClose = () => {
+    setTextStylesAnchorEl(null);
+  };
   const applySubSuperscript = (style) => {
     const contentState = editorState.getCurrentContent();
     const selection = editorState.getSelection();
@@ -119,7 +165,19 @@ const Processor = () => {
             Strikethrough <Icon icon="ooui:strikethrough-a" height="20" />
           </MenuItem>
         </Menu>
-
+         <Button onClick={handleTextStylesClick}>Text Styles</Button>
+        <Menu
+          anchorEl={textStylesAnchorEl}
+          open={Boolean(textStylesAnchorEl)}
+          onClose={handleTextStylesClose}
+        >
+          <MenuItem>
+            Font Size
+            <Button onClick={handleFontSizeDecrease}>-</Button>
+            {fontSize}
+            <Button onClick={handleFontSizeIncrease}>+</Button>
+          </MenuItem>
+        </Menu>
         <button onClick={downloadDocument}>
           <Icon icon="material-symbols:download" height="30" />
         </button>
