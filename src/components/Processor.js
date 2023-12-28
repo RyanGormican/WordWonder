@@ -11,62 +11,106 @@ const Processor = () => {
   const [words, setWords] = useState(0);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const [fontSize, setFontSize] = useState(12);
+  const [textColor, setTextColor] = useState('black');
+  const [isUppercase, setIsUppercase] = useState(false);
+   const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
   const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
+   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
  
-  const toggleInlineStyle = (style) => {
-    if (style === 'SUBSCRIPT' || style === 'SUPERSCRIPT') {
-      applySubSuperscript(style);
+ const toggleInlineStyle = (style) => {
+  if (style === 'SUBSCRIPT' || style === 'SUPERSCRIPT') {
+    applySubSuperscript(style);
+  } else if (style.startsWith('fontSize')) {
+    setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
+    changeFontSize(fontSize);
+  } else if (style.startsWith('COLOR-')) {
+    setTextColor(style.replace('COLOR-', ''));
+    changeTextColor(textColor);
+  } else if (style === 'UPPERCASE') {
+    setIsUppercase(!isUppercase);
+    changeUppercase(isUppercase);
+  } else {
+    setEditorState((prevEditorState) =>
+      RichUtils.toggleInlineStyle(prevEditorState, style)
+    );
+  }
+};
+
+  const handleTextCommandClick = (event) => {
+    setTextCommandAnchorEl(event.currentTarget);
+  };
+
+  const handleTextCommandClose = () => {
+    setTextCommandAnchorEl(null);
+  };
+
+  const handleTextFormattingMenuClick = (event) => {
+    setTextFormattingMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleTextFormattingMenuClose = () => {
+    setTextFormattingMenuAnchorEl(null);
+  };
+
+  const handleTextCommandSelect = (style) => {
+    if (style === 'TEXT_FORMATTING') {
+      handleTextFormattingMenuClick();
     } else {
-      if (style.startsWith('fontSize')) {
-        setFontSize(parseInt(style.replace('fontSize-', ''), 10));
-      } else {
-        setEditorState((prevEditorState) =>
-          RichUtils.toggleInlineStyle(prevEditorState, style)
-        );
-      }
+      toggleInlineStyle(style);
+      handleTextCommandClose();
     }
   };
 
- const handleFontSizeIncrease = () => {
-    toggleInlineStyle(`fontSize-${fontSize + 1}`);
-  };
+const handleFontSizeIncrease = () => {
+  if (fontSize < 92) {
+    const newFontSize = fontSize + 1;
+    changeFontSize(newFontSize);
+    setFontSize(newFontSize);
+  }
+};
 
-  const handleFontSizeDecrease = () => {
-    toggleInlineStyle(`fontSize-${fontSize - 1}`);
-  };
+const handleFontSizeDecrease = () => {
+  if (fontSize > 1) {
+    const newFontSize = fontSize - 1;
+    changeFontSize(newFontSize);
+    setFontSize(newFontSize);
+  }
+};
 
-    const changeFontSize = (fontSize) => {
-    const selection = editorState.getSelection();
-    const contentState = editorState.getCurrentContent();
-    const currentStyle = editorState.getCurrentInlineStyle();
-
-    const newContentState = Modifier.mergeInlineStyle(
-      contentState,
-      selection,
-      currentStyle.remove('fontSize')
+const changeTextColor = (newColor) => {
+  setEditorState((prevEditorState) =>
+    RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
+  );
+};
+const changeUppercase = (shouldBeUppercase) => {
+  setEditorState((prevEditorState) => {
+    const contentState = Modifier.replaceText(
+      prevEditorState.getCurrentContent(),
+      prevEditorState.getSelection(),
+      shouldBeUppercase
+        ? prevEditorState.getCurrentContent().getPlainText().toUpperCase()
+        : prevEditorState.getCurrentContent().getPlainText()
     );
 
-    const fontSizeStyle = fontSize ? currentStyle.add(`fontSize-${fontSize}`) : currentStyle;
-    
-    const finalContentState = Modifier.applyInlineStyle(
-      newContentState,
-      selection,
-      fontSizeStyle
-    );
+    return EditorState.push(prevEditorState, contentState, 'replace-text');
+  });
+};
 
-    const newEditorState = EditorState.push(
-      editorState,
-      finalContentState,
-      'change-inline-style'
-    );
 
-    setEditorState(newEditorState);
-  };
+const changeFontSize = (newFontSize) => {
+  setEditorState((prevEditorState) => RichUtils.toggleInlineStyle(prevEditorState, newFontSize));
+};
+
    const handleTextStylesClick = (event) => {
     setTextStylesAnchorEl(event.currentTarget);
   };
-
+  const handleDocumentInformationClick = (event) => {
+    setDocumentInformationAnchorE1(event.currentTarget);
+  };
+    const handleDocumentInformationClose = () => {
+    setDocumentInformationAnchorE1(null);
+  };
   const handleTextStylesClose = () => {
     setTextStylesAnchorEl(null);
   };
@@ -118,18 +162,6 @@ const Processor = () => {
     setWords(wordCount);
   };
 
-  const handleTextCommandClick = (event) => {
-    setTextCommandAnchorEl(event.currentTarget);
-  };
-
-  const handleTextCommandClose = () => {
-    setTextCommandAnchorEl(null);
-  };
-
-  const handleTextCommandSelect = (style) => {
-    toggleInlineStyle(style);
-    handleTextCommandClose();
-  };
 
   const downloadDocument = () => {
     const plainText = editorState.getCurrentContent().getPlainText();
@@ -146,47 +178,100 @@ const Processor = () => {
   return (
     <div>
       <span className="activity">
-        <Button onClick={handleTextCommandClick}>Text Commands</Button>
-        <Menu
-          anchorEl={textCommandAnchorEl}
-          open={Boolean(textCommandAnchorEl)}
-          onClose={handleTextCommandClose}
-        >
-          <MenuItem onClick={() => handleTextCommandSelect('ITALIC')}>
-            Italicize <Icon icon="ooui:italic-a" height="20" />
-          </MenuItem>
-          <MenuItem onClick={() => handleTextCommandSelect('BOLD')}>
-            Bold <Icon icon="ooui:bold-a" height="20" />
-          </MenuItem>
-          <MenuItem onClick={() => handleTextCommandSelect('UNDERLINE')}>
-            Underline <Icon icon="majesticons:underline-2" height="20" />
-          </MenuItem>
-          <MenuItem onClick={() => handleTextCommandSelect('STRIKETHROUGH')}>
-            Strikethrough <Icon icon="ooui:strikethrough-a" height="20" />
-          </MenuItem>
-        </Menu>
-         <Button onClick={handleTextStylesClick}>Text Styles</Button>
+        <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
+<Menu
+  anchorEl={textCommandAnchorEl}
+  open={Boolean(textCommandAnchorEl)}
+  onClose={handleTextCommandClose}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'left',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+  <MenuItem
+    onClick={(event) => handleTextFormattingMenuClick(event)}
+  >
+    Text Formatting
+  </MenuItem>
+  <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
+    Uppercase
+  </MenuItem>
+
+</Menu>
+
+<Menu
+  anchorEl={textFormattingMenuAnchorEl}
+  open={Boolean(textFormattingMenuAnchorEl)}
+  onClose={handleTextFormattingMenuClose}
+  anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+<MenuItem onClick={() => handleTextCommandSelect('BOLD')}>
+    Bold <Icon icon="ooui:bold-a" height="20" />
+  </MenuItem>
+  <MenuItem onClick={() => handleTextCommandSelect('ITALIC')}>
+    Italicize <Icon icon="ooui:italic-a" height="20" />
+  </MenuItem>
+  <MenuItem onClick={() => handleTextCommandSelect('UNDERLINE')}>
+    Underline <Icon icon="majesticons:underline-2" height="20" />
+  </MenuItem>
+  <MenuItem onClick={() => handleTextCommandSelect('STRIKETHROUGH')}>
+    Strikethrough <Icon icon="ooui:strikethrough-a" height="20" />
+  </MenuItem>
+</Menu>
+
+
+
+         <Button onClick={handleTextStylesClick}  style ={{color:'white'}}>Text Styles</Button>
         <Menu
           anchorEl={textStylesAnchorEl}
           open={Boolean(textStylesAnchorEl)}
           onClose={handleTextStylesClose}
         >
           <MenuItem>
-            Font Size
+            Font Size (WIP)
             <Button onClick={handleFontSizeDecrease}>-</Button>
             {fontSize}
             <Button onClick={handleFontSizeIncrease}>+</Button>
           </MenuItem>
+          <MenuItem onClick={() => handleTextCommandSelect('COLOR')}>
+            Text Color (WIP)
+            <input
+              type="color"
+              value={textColor}
+              onChange={(e) => setTextColor(e.target.value)}
+             />
+</MenuItem>
         </Menu>
-        <button onClick={downloadDocument}>
+        
+         <Button onClick={handleDocumentInformationClick}  style ={{color:'white'}}>Document Information</Button>
+       <Menu
+         anchorEl={documentInformationAnchorEl}
+          open={Boolean(documentInformationAnchorEl)}
+          onClose={handleDocumentInformationClose}>
+       <MenuItem>
+        {words === 0 || words > 1 ? `${words} words` : `${words} word`}
+        </MenuItem>
+         </Menu>
+         <button onClick={downloadDocument} style={{ position: 'absolute', right: '12.5vw', top: '10vh'}}>
           <Icon icon="material-symbols:download" height="30" />
         </button>
-        {words === 0 || words > 1 ? `${words} words` : `${words} word`}
       </span>
 
       <div className="processor">
         <Editor
           editorState={editorState}
+          editorStyle={{fontSize}}
           onChange={(newEditorState) => {
             setEditorState(newEditorState);
             countWords();
