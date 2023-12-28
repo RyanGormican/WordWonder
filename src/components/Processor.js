@@ -36,31 +36,50 @@ const Processor = () => {
     );
   }
 };
-
-  const handleTextCommandClick = (event) => {
-    setTextCommandAnchorEl(event.currentTarget);
-  };
-
-  const handleTextCommandClose = () => {
+const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
-  };
-
-  const handleTextFormattingMenuClick = (event) => {
-    setTextFormattingMenuAnchorEl(event.currentTarget);
+    setTextFormattingMenuAnchorEl(null);
+    setTextStylesAnchorEl(null);
   };
 
   const handleTextFormattingMenuClose = () => {
     setTextFormattingMenuAnchorEl(null);
   };
 
+  const handleTextStylesClose = () => {
+    setTextStylesAnchorEl(null);
+  };
+
+  const handleDocumentInformationClose = () => {
+    setDocumentInformationAnchorE1(null);
+  };
+
+  
   const handleTextCommandSelect = (style) => {
     if (style === 'TEXT_FORMATTING') {
       handleTextFormattingMenuClick();
+    } else if (style === 'DOCUMENT_INFORMATION') {
+      handleDocumentInformationClick();
     } else {
       toggleInlineStyle(style);
-      handleTextCommandClose();
+     
+      if (style === 'BOLD' || style === 'ITALIC' || style === 'UNDERLINE' || style === 'STRIKETHROUGH') {
+     
+      } else if (style === 'FONT_SIZE' || style === 'COLOR') {
+        handleTextStylesClose();
+      }
     }
   };
+
+  const handleTextCommandClick = (event) => {
+    setTextCommandAnchorEl(event.currentTarget);
+  };
+
+
+  const handleTextFormattingMenuClick = (event) => {
+    setTextFormattingMenuAnchorEl(event.currentTarget);
+  };
+
 
 const handleFontSizeIncrease = () => {
   if (fontSize < 92) {
@@ -107,13 +126,8 @@ const changeFontSize = (newFontSize) => {
   };
   const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
-  };
-    const handleDocumentInformationClose = () => {
-    setDocumentInformationAnchorE1(null);
-  };
-  const handleTextStylesClose = () => {
-    setTextStylesAnchorEl(null);
-  };
+  }
+ 
   const applySubSuperscript = (style) => {
     const contentState = editorState.getCurrentContent();
     const selection = editorState.getSelection();
