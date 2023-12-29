@@ -9,8 +9,10 @@ import Button from '@mui/material/Button';
 
 const Processor = () => {
   const [words, setWords] = useState(0);
+   const [characters, setCharacters] = useState(0);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const [fontSize, setFontSize] = useState(12);
+  const [documentName, setDocumentName] = useState('document');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
    const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
@@ -36,6 +38,12 @@ const Processor = () => {
     );
   }
 };
+ const countCharacters = () => {
+    const contentState = editorState.getCurrentContent();
+    const plainText = contentState.getPlainText('');
+    setCharacters(plainText.length);
+  };
+  
 const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
@@ -181,10 +189,9 @@ const changeFontSize = (newFontSize) => {
     const plainText = editorState.getCurrentContent().getPlainText();
     const pdfElement = document.createElement('div');
     pdfElement.innerText = plainText;
-
     html2pdf(pdfElement, {
       margin: 10,
-      filename: 'document.pdf',
+      filename: `${documentName}.pdf`,
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     });
   };
@@ -273,13 +280,25 @@ const changeFontSize = (newFontSize) => {
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
           onClose={handleDocumentInformationClose}>
-       <MenuItem>
+         <MenuItem>
+        Document Name
+           <input
+              type="text"
+              value={documentName}
+              onChange={(e) => setDocumentName(e.target.value)}
+             />
+        </MenuItem>
+        <MenuItem>
         {words === 0 || words > 1 ? `${words} words` : `${words} word`}
+        </MenuItem>
+        <MenuItem>
+        {characters === 0 || characters > 1 ? `${characters} characters` : `${characters} character`}
         </MenuItem>
          </Menu>
          <button onClick={downloadDocument} style={{ position: 'absolute', right: '12.5vw', top: '10vh'}}>
           <Icon icon="material-symbols:download" height="30" />
         </button>
+    
       </span>
 
       <div className="processor">
@@ -289,6 +308,7 @@ const changeFontSize = (newFontSize) => {
           onChange={(newEditorState) => {
             setEditorState(newEditorState);
             countWords();
+            countCharacters(); 
           }}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
