@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils,Modifier } from 'draft-js';
+import { Editor, EditorState, RichUtils,Modifier, Entity } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
@@ -9,24 +9,23 @@ import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
 import createStyles from 'draft-js-custom-styles';
 import { stateToHTML } from 'draft-js-export-html';
-import htmlToPdfMake from 'html-to-pdfmake';
 const Processor = () => {
   const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
   const [editorState, setEditorState, ContentState] = useState(() => EditorState.createEmpty());
   const [fontSize, setFontSize] = useState(14);
+  const [linkInput, setLinkInput] = useState('');
   const [documentName, setDocumentName] = useState('document');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
    const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
   const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
+   const [insertCommandAnchorE1, setInsertCommandAnchorEl] =useState(null);
    const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
  
  const toggleInlineStyle = (style) => {
-  if (style === 'SUBSCRIPT' || style === 'SUPERSCRIPT') {
-    applySubSuperscript(style);
-  } else if (style.startsWith('fontSize')) {
+  if (style.startsWith('fontSize')) {
     setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
     changeFontSize(fontSize);
   } else if (style.startsWith('COLOR-')) {
@@ -34,7 +33,6 @@ const Processor = () => {
     changeTextColor(textColor);
   } else if (style === 'UPPERCASE') {
     setIsUppercase(!isUppercase);
-    changeUppercase(isUppercase);
   } else {
     setEditorState((prevEditorState) =>
       RichUtils.toggleInlineStyle(prevEditorState, style)
@@ -82,12 +80,16 @@ const loadPdf = async (file) => {
 
 
 
+
 const importDocument = (event) => {
 const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       loadPdf(file);
     }
 };
+const handleInsertComandClose = () => {
+setInsertCommandAnchorEl(null);
+}
 const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
@@ -106,23 +108,21 @@ const handleTextCommandClose = () => {
     setDocumentInformationAnchorE1(null);
   };
 
-  
-  const handleTextCommandSelect = (style) => {
-    if (style === 'TEXT_FORMATTING') {
-      handleTextFormattingMenuClick();
-    } else if (style === 'DOCUMENT_INFORMATION') {
-      handleDocumentInformationClick();
-    } else {
-      toggleInlineStyle(style);
-     
-      if (style === 'BOLD' || style === 'ITALIC' || style === 'UNDERLINE' || style === 'STRIKETHROUGH') {
-     
-      } else if (style === 'FONT_SIZE' || style === 'COLOR') {
-      
-      }
-    }
-  };
+const handleTextCommandSelect = (style) => {
+  if (style === 'TEXT_FORMATTING') {
+    handleTextFormattingMenuClick();
+  } else if (style === 'DOCUMENT_INFORMATION') {
+    handleDocumentInformationClick();
+  } else if (style === 'UPPERCASE') {
+    convertToUppercase();
+  } else {
+    toggleInlineStyle(style);
+  }
+};
 
+  const handleInsertCommandClick = (event) => {
+    setInsertCommandAnchorEl(event.currentTarget);
+  };
   const handleTextCommandClick = (event) => {
     setTextCommandAnchorEl(event.currentTarget);
   };
@@ -154,20 +154,33 @@ const changeTextColor = (newColor) => {
     RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
   );
 };
-const changeUppercase = (shouldBeUppercase) => {
-  setEditorState((prevEditorState) => {
-    const contentState = Modifier.replaceText(
-      prevEditorState.getCurrentContent(),
-      prevEditorState.getSelection(),
-      shouldBeUppercase
-        ? prevEditorState.getCurrentContent().getPlainText().toUpperCase()
-        : prevEditorState.getCurrentContent().getPlainText()
-    );
+const convertToUppercase = () => {
+  const selection = editorState.getSelection();
 
-    return EditorState.push(prevEditorState, contentState, 'replace-text');
-  });
+  const contentState = editorState.getCurrentContent();
+
+  const selectedText = contentState
+    .getBlockForKey(selection.getStartKey())
+    .getText()
+    .slice(selection.getStartOffset(), selection.getEndOffset());
+
+
+  const uppercaseText = selectedText.toUpperCase();
+
+  const newContentState = Modifier.replaceText(
+    contentState,
+    selection,
+    uppercaseText
+  );
+
+  const newEditorState = EditorState.push(
+    editorState,
+    newContentState,
+    'replace-text'
+  );
+
+  setEditorState(newEditorState);
 };
-
 
 const changeFontSize = (newFontSize) => {
   const newEditorState = styles.fontSize.remove(editorState);
@@ -185,43 +198,13 @@ const changeFontSize = (newFontSize) => {
    const newEditorState = styles.color.remove(editorState);
   setEditorState(styles.color.add(newEditorState,  event));   
  }
-  const applySubSuperscript = (style) => {
-    const contentState = editorState.getCurrentContent();
-    const selection = editorState.getSelection();
-    const currentStyle = editorState.getCurrentInlineStyle();
-
-    const newContentState = Modifier.removeInlineStyle(
-      contentState,
-      selection,
-      'SUBSCRIPT'
-    );
-    const newContentStateWithStyle = Modifier.removeInlineStyle(
-      newContentState,
-      selection,
-      'SUPERSCRIPT'
-    );
-
-    const newSelection = selection.merge({
-      anchorKey: selection.getAnchorKey(),
-      focusKey: selection.getFocusKey(),
-    });
-
-    const finalContentState = Modifier.applyInlineStyle(
-      newContentStateWithStyle,
-      newSelection,
-      style
-    );
-
-    const newEditorState = EditorState.push(
-      editorState,
-      finalContentState,
-      'change-inline-style'
-    );
-
-    setEditorState(
-      RichUtils.toggleInlineStyle(newEditorState, currentStyle)
-    );
-  };
+ 
+ const handleBulletList = () => {
+  setEditorState(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
+};
+const handleNumberList = () => {
+  setEditorState(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
+};
 
   const countWords = () => {
     const contentState = editorState.getCurrentContent();
@@ -252,6 +235,17 @@ const downloadDocument = () => {
   return (
     <div>
       <span className="activity">
+        <Button onClick={handleInsertCommandClick}  style ={{color:'white'}}>Insert</Button>
+<Menu
+ anchorEl={insertCommandAnchorE1}
+ open={Boolean(insertCommandAnchorE1)}
+ onClose={handleInsertComandClose}
+>
+ <MenuItem>
+ 
+ </MenuItem>
+
+</Menu>
         <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
 <Menu
   anchorEl={textCommandAnchorEl}
@@ -269,12 +263,17 @@ const downloadDocument = () => {
   <MenuItem
     onClick={(event) => handleTextFormattingMenuClick(event)}
   >
-    Text Formatting
+    Text Formatting <Icon icon="quill:formatting" />
   </MenuItem>
   <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
-    Uppercase
+    Uppercase <Icon icon="fa6-solid:a" />
   </MenuItem>
-
+  <MenuItem onClick={handleBulletList}>
+  Bullet List <Icon icon="clarity:bullet-list-line" />
+  </MenuItem>
+  <MenuItem onClick ={handleNumberList}>
+  Numbered List <Icon icon="cil:list-numbered" />
+  </MenuItem>
 </Menu>
 
 <Menu
