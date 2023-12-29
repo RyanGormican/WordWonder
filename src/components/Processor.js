@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, Modifier } from 'draft-js';
+import { Editor, EditorState, RichUtils,Modifier } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-import { stateFromHTML } from 'draft-js-import-html';
 import { getDocument } from 'pdfjs-dist';
 import createStyles from 'draft-js-custom-styles';
-
+import { stateToHTML } from 'draft-js-export-html';
+import htmlToPdfMake from 'html-to-pdfmake';
 const Processor = () => {
   const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
@@ -132,7 +132,7 @@ const handleTextCommandClose = () => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
   };
 
-const {styles, customStyleFn} = createStyles(['font-size'])
+const {styles, customStyleFn, exporter } = createStyles(['font-size','color'])
 const handleFontSizeIncrease = () => {
   if (fontSize < 92) {
     const newFontSize = fontSize + 1;
@@ -172,7 +172,6 @@ const changeUppercase = (shouldBeUppercase) => {
 const changeFontSize = (newFontSize) => {
   const newEditorState = styles.fontSize.remove(editorState);
   setEditorState(styles.fontSize.add(newEditorState,  `${newFontSize}px`));
-  console.log(newFontSize);
 };
 
    const handleTextStylesClick = (event) => {
@@ -181,7 +180,11 @@ const changeFontSize = (newFontSize) => {
   const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
   }
- 
+ const handleColor = (event) => {
+ setTextColor(event);
+   const newEditorState = styles.color.remove(editorState);
+  setEditorState(styles.color.add(newEditorState,  event));   
+ }
   const applySubSuperscript = (style) => {
     const contentState = editorState.getCurrentContent();
     const selection = editorState.getSelection();
@@ -230,24 +233,20 @@ const changeFontSize = (newFontSize) => {
     setWords(wordCount);
   };
 
+const downloadDocument = () => {
+  const contentState = editorState.getCurrentContent();
+  const inlineStyles = exporter(editorState);
+  const htmlContent = stateToHTML(contentState, { inlineStyles });
 
-  const downloadDocument = () => {
-    const plainText = editorState.getCurrentContent().getPlainText();
-    const pdfElement = document.createElement('div');
-    pdfElement.innerText = plainText;
-    html2pdf(pdfElement, {
-      margin: 10,
-      filename: `${documentName}.pdf`,
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    });
-  };
+  const pdfElement = document.createElement('div');
+  pdfElement.innerHTML = htmlContent;
 
-  const styleMap = {
-    'STYLES' : {
-        color: {textColor},
-        fontSize: `${fontSize} px`,
-    }
-}
+  html2pdf(pdfElement, {
+    margin: 10,
+    filename: `${documentName}.pdf`,
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  });
+};
 
 
   return (
@@ -320,11 +319,11 @@ const changeFontSize = (newFontSize) => {
             <Button onClick={handleFontSizeIncrease}>+</Button>
           </MenuItem>
           <MenuItem onClick={() => handleTextCommandSelect('COLOR')}>
-            Text Color (WIP)
+            Text Color 
             <input
               type="color"
               value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
+              onChange={(e) => handleColor(e.target.value)}
              />
 </MenuItem>
         </Menu>
@@ -364,8 +363,7 @@ const changeFontSize = (newFontSize) => {
         <Editor
           toolbarHidden
           editorState={editorState}
-          editorStyle={{fontSize}}
-          customStyleMap={styleMap}
+          editorStyle={{ fontSize: `${fontSize}px` }}
           onChange={(newEditorState) => {
             setEditorState(newEditorState);
             countWords();
