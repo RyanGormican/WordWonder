@@ -7,11 +7,14 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { stateFromHTML } from 'draft-js-import-html';
+import { getDocument } from 'pdfjs-dist';
+import createStyles from 'draft-js-custom-styles';
+
 const Processor = () => {
   const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
   const [editorState, setEditorState, ContentState] = useState(() => EditorState.createEmpty());
-  const [fontSize, setFontSize] = useState(12);
+  const [fontSize, setFontSize] = useState(14);
   const [documentName, setDocumentName] = useState('document');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
@@ -43,21 +46,47 @@ const Processor = () => {
     const plainText = contentState.getPlainText('');
     setCharacters(plainText.length);
   };
-    const importDocument = (event) => {
-const fileInput = event.target;
-  const file = fileInput.files[0];
+const loadPdf = async (file) => {
+  const reader = new FileReader();
 
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target.result;
-      const contentState = stateFromHTML(content); 
-      const newEditorState = EditorState.createWithContent(contentState);
+  reader.onload = async (event) => {
+    const arrayBuffer = event.target.result;
+    const pdfData = new Uint8Array(arrayBuffer);
+
+    try {
+      const loadingTask = getDocument({ data: pdfData });
+      const pdf = await loadingTask.promise;
+
+      let textContent = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const pageText = await page.getTextContent();
+        textContent += pageText.items.map((item) => item.str).join(' ');
+      }
+
+      const contentState = ContentState.createFromText(textContent);
+      const newEditorState = EditorState.push(
+        editorState,
+        contentState,
+        'insert-characters'
+      );
       setEditorState(newEditorState);
-    };
+    } catch (error) {
+      console.error('Error loading PDF:', error);
+    }
+  };
 
-    reader.readAsText(file);
-  }
+  reader.readAsArrayBuffer(file);
+};
+
+
+
+const importDocument = (event) => {
+const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      loadPdf(file);
+    }
 };
 const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
@@ -89,7 +118,7 @@ const handleTextCommandClose = () => {
       if (style === 'BOLD' || style === 'ITALIC' || style === 'UNDERLINE' || style === 'STRIKETHROUGH') {
      
       } else if (style === 'FONT_SIZE' || style === 'COLOR') {
-        handleTextStylesClose();
+      
       }
     }
   };
@@ -103,7 +132,7 @@ const handleTextCommandClose = () => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
   };
 
-
+const {styles, customStyleFn} = createStyles(['font-size'])
 const handleFontSizeIncrease = () => {
   if (fontSize < 92) {
     const newFontSize = fontSize + 1;
@@ -141,7 +170,9 @@ const changeUppercase = (shouldBeUppercase) => {
 
 
 const changeFontSize = (newFontSize) => {
-  setEditorState((prevEditorState) => RichUtils.toggleInlineStyle(prevEditorState, newFontSize));
+  const newEditorState = styles.fontSize.remove(editorState);
+  setEditorState(styles.fontSize.add(newEditorState,  `${newFontSize}px`));
+  console.log(newFontSize);
 };
 
    const handleTextStylesClick = (event) => {
@@ -211,6 +242,14 @@ const changeFontSize = (newFontSize) => {
     });
   };
 
+  const styleMap = {
+    'STYLES' : {
+        color: {textColor},
+        fontSize: `${fontSize} px`,
+    }
+}
+
+
   return (
     <div>
       <span className="activity">
@@ -275,7 +314,7 @@ const changeFontSize = (newFontSize) => {
           onClose={handleTextStylesClose}
         >
           <MenuItem>
-            Font Size (WIP)
+            Font Size
             <Button onClick={handleFontSizeDecrease}>-</Button>
             {fontSize}
             <Button onClick={handleFontSizeIncrease}>+</Button>
@@ -310,7 +349,7 @@ const changeFontSize = (newFontSize) => {
         {characters === 0 || characters > 1 ? `${characters} characters` : `${characters} character`}
         </MenuItem>
          </Menu>
-         <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput" />
+         <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
         <label htmlFor="fileInput">
           <Button component="span" style={{ position: 'absolute', left: '12.5vw', top: '10vh',color: 'white'}}>
           <Icon icon="mdi:import" height="30" />
@@ -326,6 +365,7 @@ const changeFontSize = (newFontSize) => {
           toolbarHidden
           editorState={editorState}
           editorStyle={{fontSize}}
+          customStyleMap={styleMap}
           onChange={(newEditorState) => {
             setEditorState(newEditorState);
             countWords();
@@ -334,6 +374,7 @@ const changeFontSize = (newFontSize) => {
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
           spellCheck={true}
+          customStyleFn={customStyleFn}
         />
       </div>
     </div>
