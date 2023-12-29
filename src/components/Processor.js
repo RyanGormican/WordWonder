@@ -205,7 +205,12 @@ const changeFontSize = (newFontSize) => {
 const handleNumberList = () => {
   setEditorState(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
 };
-
+const handleCodeBlock = () => {
+setEditorState(RichUtils.toggleBlockType(editorState, 'code-block'));
+}
+const handleQuoteBlock = () => {
+  setEditorState(RichUtils.toggleBlockType(editorState, 'blockquote'));
+}
   const countWords = () => {
     const contentState = editorState.getCurrentContent();
     const plainText = contentState.getPlainText();
@@ -265,15 +270,18 @@ const downloadDocument = () => {
   >
     Text Formatting <Icon icon="quill:formatting" />
   </MenuItem>
-  <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
-    Uppercase <Icon icon="fa6-solid:a" />
-  </MenuItem>
   <MenuItem onClick={handleBulletList}>
   Bullet List <Icon icon="clarity:bullet-list-line" />
   </MenuItem>
   <MenuItem onClick ={handleNumberList}>
   Numbered List <Icon icon="cil:list-numbered" />
   </MenuItem>
+  <MenuItem onClick ={handleCodeBlock}>
+  Code <Icon icon="material-symbols:code" />
+   </MenuItem>
+    <MenuItem onClick ={handleQuoteBlock}>
+    Quote <Icon icon="bi:quote" />
+   </MenuItem>
 </Menu>
 
 <Menu
@@ -300,6 +308,9 @@ const downloadDocument = () => {
   </MenuItem>
   <MenuItem onClick={() => handleTextCommandSelect('STRIKETHROUGH')}>
     Strikethrough <Icon icon="ooui:strikethrough-a" height="20" />
+  </MenuItem>
+   <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
+    Uppercase <Icon icon="fa6-solid:a" />
   </MenuItem>
 </Menu>
 
