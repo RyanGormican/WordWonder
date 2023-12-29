@@ -6,11 +6,11 @@ import html2pdf from 'html2pdf.js';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-
+import { stateFromHTML } from 'draft-js-import-html';
 const Processor = () => {
   const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
-  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [editorState, setEditorState, ContentState] = useState(() => EditorState.createEmpty());
   const [fontSize, setFontSize] = useState(12);
   const [documentName, setDocumentName] = useState('document');
   const [textColor, setTextColor] = useState('black');
@@ -43,7 +43,22 @@ const Processor = () => {
     const plainText = contentState.getPlainText('');
     setCharacters(plainText.length);
   };
-  
+    const importDocument = (event) => {
+const fileInput = event.target;
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const contentState = stateFromHTML(content); 
+      const newEditorState = EditorState.createWithContent(contentState);
+      setEditorState(newEditorState);
+    };
+
+    reader.readAsText(file);
+  }
+};
 const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
@@ -295,14 +310,20 @@ const changeFontSize = (newFontSize) => {
         {characters === 0 || characters > 1 ? `${characters} characters` : `${characters} character`}
         </MenuItem>
          </Menu>
-         <button onClick={downloadDocument} style={{ position: 'absolute', right: '12.5vw', top: '10vh'}}>
+         <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput" />
+        <label htmlFor="fileInput">
+          <Button component="span" style={{ position: 'absolute', left: '12.5vw', top: '10vh',color: 'white'}}>
+          <Icon icon="mdi:import" height="30" />
+          </Button>
+        </label>  
+         <Button onClick={downloadDocument} style={{ position: 'absolute', right: '12.5vw', top: '10vh',color: 'white'}}>
           <Icon icon="material-symbols:download" height="30" />
-        </button>
-    
+        </Button>
       </span>
 
       <div className="processor">
         <Editor
+          toolbarHidden
           editorState={editorState}
           editorStyle={{fontSize}}
           onChange={(newEditorState) => {
@@ -312,6 +333,7 @@ const changeFontSize = (newFontSize) => {
           }}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
+          spellCheck={true}
         />
       </div>
     </div>
