@@ -9,22 +9,21 @@ import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
 import { stateToHTML } from 'draft-js-export-html';
 import DocumentInfo from './DocumentInfo';
+import Insert from './Insert';
+import TextCommands from './TextCommands';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
 const Processor = () => {
     const documentInfoRef = useRef();
-    const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
   const [fontSize, setFontSize] = useState(14);
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
   const [linkInput, setLinkInput] = useState('');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
-   const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
-  const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
-   const [insertCommandAnchorE1, setInsertCommandAnchorEl] =useState(null);
+
  const [lineSpacing, setLineSpacing] = useState(1.5); 
  const [documentName, setDocumentName] = useState('document');
 
@@ -87,56 +86,13 @@ const file = event.target.files[0];
       loadPdf(file);
     }
 };
-const handleInsertComandClose = () => {
-setInsertCommandAnchorEl(null);
-}
-const handleTextCommandClose = () => {
-    setTextCommandAnchorEl(null);
-    setTextFormattingMenuAnchorEl(null);
-    setTextStylesAnchorEl(null);
-    setTextBlockingMenuAnchorEl(null);
-  };
-
-  const handleTextFormattingMenuClose = () => {
-    setTextFormattingMenuAnchorEl(null);
-  };
 
   const handleTextStylesClose = () => {
     setTextStylesAnchorEl(null);
   };
 
  
-  const handleTextBlockingMenuClick = (event) => {
-  setTextBlockingMenuAnchorEl(event.currentTarget);
-};
-
-const handleTextBlockingMenuClose = () => {
-  setTextBlockingMenuAnchorEl(null);
-};
-
-const handleTextCommandSelect = (style) => {
-  if (style === 'TEXT_FORMATTING') {
-    handleTextFormattingMenuClick();
-  } else if (style === 'DOCUMENT_INFORMATION') {
-  
-  } else if (style === 'UPPERCASE') {
-    convertToUppercase();
-  } else {
-    toggleInlineStyle(style);
-  }
-};
-
-  const handleInsertCommandClick = (event) => {
-    setInsertCommandAnchorEl(event.currentTarget);
-  };
-  const handleTextCommandClick = (event) => {
-    setTextCommandAnchorEl(event.currentTarget);
-  };
-
-
-  const handleTextFormattingMenuClick = (event) => {
-    setTextFormattingMenuAnchorEl(event.currentTarget);
-  };
+ 
 
 
 const handleFontSizeIncrease = () => {
@@ -160,33 +116,7 @@ const changeTextColor = (newColor) => {
     RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
   );
 };
-const convertToUppercase = () => {
-  const selection = editorState.getSelection();
 
-  const contentState = editorState.getCurrentContent();
-
-  const selectedText = contentState
-    .getBlockForKey(selection.getStartKey())
-    .getText()
-    .slice(selection.getStartOffset(), selection.getEndOffset());
-
-
-  const uppercaseText = selectedText.toUpperCase();
-
-  const newContentState = Modifier.replaceText(
-    contentState,
-    selection,
-    uppercaseText
-  );
-
-  const newEditorState = EditorState.push(
-    editorState,
-    newContentState,
-    'replace-text'
-  );
-
-  handleEditorStateChange(newEditorState);
-};
 
 const changeFontSize = (newFontSize) => {
   
@@ -200,20 +130,7 @@ const changeFontSize = (newFontSize) => {
  setTextColor(event);
  
  }
- 
- const handleBulletList = () => {
-  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
-};
-const handleNumberList = () => {
-  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
-};
-const handleCodeBlock = () => {
-handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'code-block'));
-}
-const handleQuoteBlock = () => {
-  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'blockquote'));
-}
-  
+   
 
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();
@@ -230,40 +147,7 @@ const downloadDocument = () => {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
   });
 };
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
 
-  if (file) {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const img = new Image();
-      img.src = reader.result;
-
-      img.onload = () => {
-        const contentState = editorState.getCurrentContent();
-        const contentStateWithEntity = contentState.createEntity(
-          'image',
-          'IMMUTABLE',
-          { src: reader.result, height: img.height, width: img.width }
-        );
-
-        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-        const newEditorState = EditorState.set(
-          editorState,
-          { currentContent: contentStateWithEntity },
-          'create-entity'
-        );
-
-        handleEditorStateChange(
-          AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
-        );
-      };
-    };
-
-    reader.readAsDataURL(file);
-  }
-};
 
 
  const blockRenderer = (contentBlock) => {
@@ -297,107 +181,8 @@ const handleImageUpload = (event) => {
   return (
     <div>
       <span className="activity">
-        <Button onClick={handleInsertCommandClick}  style ={{color:'white'}}>Insert</Button>
-<Menu
- anchorEl={insertCommandAnchorE1}
- open={Boolean(insertCommandAnchorE1)}
- onClose={handleInsertComandClose}
->
-<label htmlFor="imageInput">
- <MenuItem>
- <input
-  type="file"
-  accept="image/*"
-  onChange={handleImageUpload}
-  style={{ display: 'none' }}
-  id="imageInput"
-/>
- Image <Icon icon="material-symbols:photo" /> 
-
- </MenuItem>
- </label>
-</Menu>
-        <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
-<Menu
-  anchorEl={textCommandAnchorEl}
-  open={Boolean(textCommandAnchorEl)}
-  onClose={handleTextCommandClose}
-  anchorOrigin={{
-    vertical: 'bottom',
-    horizontal: 'left',
-  }}
-  transformOrigin={{
-    vertical: 'top',
-    horizontal: 'left',
-  }}
->
-  <MenuItem
-    onClick={(event) => handleTextFormattingMenuClick(event)}
-  >
-    Text Formatting <Icon icon="quill:formatting" />
-  </MenuItem>
-  <MenuItem onClick={(event) => handleTextBlockingMenuClick(event)}>
-  Text Blocking  <Icon icon="mdi:text" />
-</MenuItem>
-
- 
-</Menu>
-
-<Menu
-  anchorEl={textFormattingMenuAnchorEl}
-  open={Boolean(textFormattingMenuAnchorEl)}
-  onClose={handleTextFormattingMenuClose}
- anchorOrigin={{
-    vertical: 'top',
-    horizontal: 'right',
-  }}
-  transformOrigin={{
-    vertical: 'top',
-    horizontal: 'left',
-  }}
->
-<MenuItem onClick={() => handleTextCommandSelect('BOLD')}>
-    Bold <Icon icon="ooui:bold-a" height="20" />
-  </MenuItem>
-  <MenuItem onClick={() => handleTextCommandSelect('ITALIC')}>
-    Italicize <Icon icon="ooui:italic-a" height="20" />
-  </MenuItem>
-  <MenuItem onClick={() => handleTextCommandSelect('UNDERLINE')}>
-    Underline <Icon icon="majesticons:underline-2" height="20" />
-  </MenuItem>
-  <MenuItem onClick={() => handleTextCommandSelect('STRIKETHROUGH')}>
-    Strikethrough <Icon icon="ooui:strikethrough-a" height="20" />
-  </MenuItem>
-   <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
-    Uppercase <Icon icon="fa6-solid:a" />
-  </MenuItem>
-</Menu>
-<Menu
-  anchorEl={textBlockingMenuAnchorEl}
-  open={Boolean(textBlockingMenuAnchorEl)}
-  onClose={handleTextBlockingMenuClose}
-  anchorOrigin={{
-    vertical: 'top',
-    horizontal: 'right', 
-  }}
-  transformOrigin={{
-    vertical: 'top',
-    horizontal: 'left',
-  }}
->
-  <MenuItem onClick={handleBulletList}>
-  Bullet List <Icon icon="clarity:bullet-list-line" />
-  </MenuItem>
-  <MenuItem onClick ={handleNumberList}>
-  Numbered List <Icon icon="cil:list-numbered" />
-  </MenuItem>
-  <MenuItem onClick ={handleCodeBlock}>
-  Code <Icon icon="material-symbols:code" />
-   </MenuItem>
-    <MenuItem onClick ={handleQuoteBlock}>
-    Quote <Icon icon="bi:quote" />
-   </MenuItem>
-</Menu>
+       <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
+       <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
 
 
@@ -413,7 +198,7 @@ const handleImageUpload = (event) => {
             {fontSize}
             <Button onClick={handleFontSizeIncrease}>+</Button>
           </MenuItem>
-          <MenuItem onClick={() => handleTextCommandSelect('COLOR')}>
+          <MenuItem>
             Text Color (WIP)
             <input
               type="color"
