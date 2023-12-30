@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils,Modifier, Entity } from 'draft-js';
+import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, InlineStyle, SelectionState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
@@ -8,9 +8,12 @@ import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
 import { stateToHTML } from 'draft-js-export-html';
+import 'draft-js/dist/Draft.css'; 
 const Processor = () => {
   const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
+    const [selectedWords, setSelectedWords] = useState(0);
+  const [selectedCharacters, setSelectedCharacters] = useState(0);
   const [editorState, setEditorState, ContentState] = useState(() => EditorState.createEmpty());
   const [fontSize, setFontSize] = useState(14);
   const [linkInput, setLinkInput] = useState('');
@@ -22,7 +25,8 @@ const Processor = () => {
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
    const [insertCommandAnchorE1, setInsertCommandAnchorEl] =useState(null);
    const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
- 
+ const [lineSpacing, setLineSpacing] = useState(1.5); 
+
  const toggleInlineStyle = (style) => {
   if (style.startsWith('fontSize')) {
     setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
@@ -76,10 +80,53 @@ const loadPdf = async (file) => {
 
   reader.readAsArrayBuffer(file);
 };
+const getSelectedText = (editorState) => {
+  const selection = editorState.getSelection();
+  const contentState = editorState.getCurrentContent();
+  const startKey = selection.getStartKey();
+  const endKey = selection.getEndKey();
+  const startOffset = selection.getStartOffset();
+  const endOffset = selection.getEndOffset();
+  
+  
+  if (startKey === endKey) {
+    return contentState.getBlockForKey(startKey).getText().slice(startOffset, endOffset);
+  }
+  
+ 
+  const selectedBlocks = contentState.getBlocksAsArray().slice(
+    contentState.getBlockMap().keySeq().toList().indexOf(startKey),
+    contentState.getBlockMap().keySeq().toList().indexOf(endKey) + 1
+  );
+  
+  const selectedText = selectedBlocks.map((block, index) => {
+    const blockText = block.getText();
+    if (index === 0) {
+      return blockText.slice(startOffset);
+    } else if (index === selectedBlocks.length - 1) {
+      return blockText.slice(0, endOffset);
+    } else {
+      return blockText;
+    }
+  }).join('\n');
+
+  return selectedText;
+};
+
+const countSelected = () => {
+  const selectedText = getSelectedText(editorState);
+
+  const selectedWordCount = selectedText
+    .split(/\s+/)
+    .filter((word) => word.length > 0)
+    .length;
 
 
+  const selectedCharacterCount = selectedText.length;
 
-
+  setSelectedWords(selectedWordCount);
+  setSelectedCharacters(selectedCharacterCount);
+  };
 const importDocument = (event) => {
 const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
@@ -233,6 +280,62 @@ const downloadDocument = () => {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
   });
 };
+const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const img = new Image();
+      img.src = reader.result;
+
+      img.onload = () => {
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity(
+          'image',
+          'IMMUTABLE',
+          { src: reader.result, height: img.height, width: img.width }
+        );
+
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const newEditorState = EditorState.set(
+          editorState,
+          { currentContent: contentStateWithEntity },
+          'create-entity'
+        );
+
+        setEditorState(
+          AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+        );
+      };
+    };
+
+    reader.readAsDataURL(file);
+  }
+};
+
+
+ const blockRenderer = (contentBlock) => {
+    const type = contentBlock.getType();
+
+    if (type === 'atomic') {
+      return {
+        component: AtomicBlock,
+        editable: false,
+      };
+    }
+
+    return null;
+  };
+
+  const AtomicBlock = (props) => {
+  const { block, contentState } = props;
+  const entity = contentState.getEntity(block.getEntityAt(0));
+  const { src, height, width } = entity.getData();
+
+  return <img src={src} alt="Uploaded" style={{ width, height, maxWidth: '100%' }} />;
+};
 
 
 
@@ -245,10 +348,19 @@ const downloadDocument = () => {
  open={Boolean(insertCommandAnchorE1)}
  onClose={handleInsertComandClose}
 >
+<label htmlFor="imageInput">
  <MenuItem>
- 
- </MenuItem>
+ <input
+  type="file"
+  accept="image/*"
+  onChange={handleImageUpload}
+  style={{ display: 'none' }}
+  id="imageInput"
+/>
+ Image <Icon icon="material-symbols:photo" /> 
 
+ </MenuItem>
+ </label>
 </Menu>
         <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
 <Menu
@@ -351,10 +463,10 @@ const downloadDocument = () => {
              />
         </MenuItem>
         <MenuItem>
-        {words === 0 || words > 1 ? `${words} words` : `${words} word`}
+        {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
         </MenuItem>
         <MenuItem>
-        {characters === 0 || characters > 1 ? `${characters} characters` : `${characters} character`}
+        {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
         </MenuItem>
          </Menu>
          <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
@@ -376,11 +488,13 @@ const downloadDocument = () => {
           onChange={(newEditorState) => {
             setEditorState(newEditorState);
             countWords();
-            countCharacters(); 
+            countCharacters();
+            countSelected();
           }}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
           spellCheck={true}
+           blockRendererFn={blockRenderer}
         />
       </div>
     </div>
