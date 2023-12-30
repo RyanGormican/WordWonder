@@ -62,24 +62,31 @@ const handleTextCommandSelect = (style) => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
   };
 
-  const convertToUppercase = () => {
+const convertToUppercase = () => {
   const selection = editorState.getSelection();
-
   const contentState = editorState.getCurrentContent();
+  const blockKey = selection.getStartKey();
+  const block = contentState.getBlockForKey(blockKey);
 
-  const selectedText = contentState
-    .getBlockForKey(selection.getStartKey())
-    .getText()
-    .slice(selection.getStartOffset(), selection.getEndOffset());
+  const startOffset = selection.getStartOffset();
+  const endOffset = selection.getEndOffset();
+  const selectedText = block.getText().slice(startOffset, endOffset);
 
+  const inlineStyles = block.getInlineStyleAt(startOffset);
 
-  const uppercaseText = selectedText.toUpperCase();
+  const newContentBlock = new ContentBlock({
+    key: blockKey,
+    text: block.getText().replace(selectedText, selectedText.toUpperCase()),
+    type: block.getType(),
+    data: block.getData(),
+    characterList: block.getCharacterList().map((char, index) => {
+      return index >= startOffset && index < endOffset ? char.set('style', inlineStyles) : char;
+    }),
+  });
 
-  const newContentState = Modifier.replaceText(
-    contentState,
-    selection,
-    uppercaseText
-  );
+  const newContentState = contentState.merge({
+    blockMap: contentState.getBlockMap().set(blockKey, newContentBlock),
+  });
 
   const newEditorState = EditorState.push(
     editorState,
@@ -89,6 +96,9 @@ const handleTextCommandSelect = (style) => {
 
   handleEditorStateChange(newEditorState);
 };
+
+
+
 return (
 <div>
        <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
