@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, InlineStyle, SelectionState } from 'draft-js';
+import React, { useState,useRef } from 'react';
+import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, ContentState, InlineStyle, SelectionState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
@@ -8,25 +8,29 @@ import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
 import { stateToHTML } from 'draft-js-export-html';
+import DocumentInfo from './DocumentInfo';
 import 'draft-js/dist/Draft.css'; 
+import { useDispatch, useSelector } from 'react-redux';
+import { updateEditorState } from '../actions/editorActions';
 const Processor = () => {
-  const [words, setWords] = useState(0);
-   const [characters, setCharacters] = useState(0);
-    const [selectedWords, setSelectedWords] = useState(0);
-  const [selectedCharacters, setSelectedCharacters] = useState(0);
-  const [editorState, setEditorState, ContentState] = useState(() => EditorState.createEmpty());
+    const documentInfoRef = useRef();
+    const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
   const [fontSize, setFontSize] = useState(14);
+  const dispatch = useDispatch();
+  const editorState = useSelector((state) => state.editor.editorState);
   const [linkInput, setLinkInput] = useState('');
-  const [documentName, setDocumentName] = useState('document');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
    const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
   const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
    const [insertCommandAnchorE1, setInsertCommandAnchorEl] =useState(null);
-   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
  const [lineSpacing, setLineSpacing] = useState(1.5); 
+ const [documentName, setDocumentName] = useState('document');
 
+  const handleDocumentNameChange = (newDocumentName) => {
+    setDocumentName(newDocumentName);
+  };
  const toggleInlineStyle = (style) => {
   if (style.startsWith('fontSize')) {
     setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
@@ -37,16 +41,12 @@ const Processor = () => {
   } else if (style === 'UPPERCASE') {
     setIsUppercase(!isUppercase);
   } else {
-    setEditorState((prevEditorState) =>
+    handleEditorStateChange((prevEditorState) =>
       RichUtils.toggleInlineStyle(prevEditorState, style)
     );
   }
 };
- const countCharacters = () => {
-    const contentState = editorState.getCurrentContent();
-    const plainText = contentState.getPlainText('');
-    setCharacters(plainText.length);
-  };
+
 const loadPdf = async (file) => {
   const reader = new FileReader();
 
@@ -72,7 +72,7 @@ const loadPdf = async (file) => {
         contentState,
         'insert-characters'
       );
-      setEditorState(newEditorState);
+      handleEditorStateChange(newEditorState);
     } catch (error) {
       console.error('Error loading PDF:', error);
     }
@@ -80,53 +80,7 @@ const loadPdf = async (file) => {
 
   reader.readAsArrayBuffer(file);
 };
-const getSelectedText = (editorState) => {
-  const selection = editorState.getSelection();
-  const contentState = editorState.getCurrentContent();
-  const startKey = selection.getStartKey();
-  const endKey = selection.getEndKey();
-  const startOffset = selection.getStartOffset();
-  const endOffset = selection.getEndOffset();
-  
-  
-  if (startKey === endKey) {
-    return contentState.getBlockForKey(startKey).getText().slice(startOffset, endOffset);
-  }
-  
- 
-  const selectedBlocks = contentState.getBlocksAsArray().slice(
-    contentState.getBlockMap().keySeq().toList().indexOf(startKey),
-    contentState.getBlockMap().keySeq().toList().indexOf(endKey) + 1
-  );
-  
-  const selectedText = selectedBlocks.map((block, index) => {
-    const blockText = block.getText();
-    if (index === 0) {
-      return blockText.slice(startOffset);
-    } else if (index === selectedBlocks.length - 1) {
-      return blockText.slice(0, endOffset);
-    } else {
-      return blockText;
-    }
-  }).join('\n');
 
-  return selectedText;
-};
-
-const countSelected = () => {
-  const selectedText = getSelectedText(editorState);
-
-  const selectedWordCount = selectedText
-    .split(/\s+/)
-    .filter((word) => word.length > 0)
-    .length;
-
-
-  const selectedCharacterCount = selectedText.length;
-
-  setSelectedWords(selectedWordCount);
-  setSelectedCharacters(selectedCharacterCount);
-  };
 const importDocument = (event) => {
 const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
@@ -140,6 +94,7 @@ const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
     setTextStylesAnchorEl(null);
+    setTextBlockingMenuAnchorEl(null);
   };
 
   const handleTextFormattingMenuClose = () => {
@@ -150,15 +105,20 @@ const handleTextCommandClose = () => {
     setTextStylesAnchorEl(null);
   };
 
-  const handleDocumentInformationClose = () => {
-    setDocumentInformationAnchorE1(null);
-  };
+ 
+  const handleTextBlockingMenuClick = (event) => {
+  setTextBlockingMenuAnchorEl(event.currentTarget);
+};
+
+const handleTextBlockingMenuClose = () => {
+  setTextBlockingMenuAnchorEl(null);
+};
 
 const handleTextCommandSelect = (style) => {
   if (style === 'TEXT_FORMATTING') {
     handleTextFormattingMenuClick();
   } else if (style === 'DOCUMENT_INFORMATION') {
-    handleDocumentInformationClick();
+  
   } else if (style === 'UPPERCASE') {
     convertToUppercase();
   } else {
@@ -196,7 +156,7 @@ const handleFontSizeDecrease = () => {
 };
 
 const changeTextColor = (newColor) => {
-  setEditorState((prevEditorState) =>
+  handleEditorStateChange((prevEditorState) =>
     RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
   );
 };
@@ -225,7 +185,7 @@ const convertToUppercase = () => {
     'replace-text'
   );
 
-  setEditorState(newEditorState);
+  handleEditorStateChange(newEditorState);
 };
 
 const changeFontSize = (newFontSize) => {
@@ -235,35 +195,25 @@ const changeFontSize = (newFontSize) => {
    const handleTextStylesClick = (event) => {
     setTextStylesAnchorEl(event.currentTarget);
   };
-  const handleDocumentInformationClick = (event) => {
-    setDocumentInformationAnchorE1(event.currentTarget);
-  }
+ 
  const handleColor = (event) => {
  setTextColor(event);
  
  }
  
  const handleBulletList = () => {
-  setEditorState(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
+  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
 };
 const handleNumberList = () => {
-  setEditorState(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
+  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
 };
 const handleCodeBlock = () => {
-setEditorState(RichUtils.toggleBlockType(editorState, 'code-block'));
+handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'code-block'));
 }
 const handleQuoteBlock = () => {
-  setEditorState(RichUtils.toggleBlockType(editorState, 'blockquote'));
+  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'blockquote'));
 }
-  const countWords = () => {
-    const contentState = editorState.getCurrentContent();
-    const plainText = contentState.getPlainText();
-    const wordCount = plainText
-      .split(/\s+/)
-      .filter((word) => word.length > 0)
-      .length;
-    setWords(wordCount);
-  };
+  
 
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();
@@ -305,7 +255,7 @@ const handleImageUpload = (event) => {
           'create-entity'
         );
 
-        setEditorState(
+        handleEditorStateChange(
           AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
         );
       };
@@ -338,7 +288,12 @@ const handleImageUpload = (event) => {
 };
 
 
-
+  const handleEditorStateChange = (newEditorState) => {
+    dispatch(updateEditorState(newEditorState));
+    documentInfoRef.current.countWords();
+    documentInfoRef.current.countCharacters();
+    documentInfoRef.current.countSelected();
+  };
   return (
     <div>
       <span className="activity">
@@ -381,25 +336,18 @@ const handleImageUpload = (event) => {
   >
     Text Formatting <Icon icon="quill:formatting" />
   </MenuItem>
-  <MenuItem onClick={handleBulletList}>
-  Bullet List <Icon icon="clarity:bullet-list-line" />
-  </MenuItem>
-  <MenuItem onClick ={handleNumberList}>
-  Numbered List <Icon icon="cil:list-numbered" />
-  </MenuItem>
-  <MenuItem onClick ={handleCodeBlock}>
-  Code <Icon icon="material-symbols:code" />
-   </MenuItem>
-    <MenuItem onClick ={handleQuoteBlock}>
-    Quote <Icon icon="bi:quote" />
-   </MenuItem>
+  <MenuItem onClick={(event) => handleTextBlockingMenuClick(event)}>
+  Text Blocking  <Icon icon="mdi:text" />
+</MenuItem>
+
+ 
 </Menu>
 
 <Menu
   anchorEl={textFormattingMenuAnchorEl}
   open={Boolean(textFormattingMenuAnchorEl)}
   onClose={handleTextFormattingMenuClose}
-  anchorOrigin={{
+ anchorOrigin={{
     vertical: 'top',
     horizontal: 'right',
   }}
@@ -423,6 +371,32 @@ const handleImageUpload = (event) => {
    <MenuItem onClick={() => handleTextCommandSelect('UPPERCASE')}>
     Uppercase <Icon icon="fa6-solid:a" />
   </MenuItem>
+</Menu>
+<Menu
+  anchorEl={textBlockingMenuAnchorEl}
+  open={Boolean(textBlockingMenuAnchorEl)}
+  onClose={handleTextBlockingMenuClose}
+  anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right', 
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+  <MenuItem onClick={handleBulletList}>
+  Bullet List <Icon icon="clarity:bullet-list-line" />
+  </MenuItem>
+  <MenuItem onClick ={handleNumberList}>
+  Numbered List <Icon icon="cil:list-numbered" />
+  </MenuItem>
+  <MenuItem onClick ={handleCodeBlock}>
+  Code <Icon icon="material-symbols:code" />
+   </MenuItem>
+    <MenuItem onClick ={handleQuoteBlock}>
+    Quote <Icon icon="bi:quote" />
+   </MenuItem>
 </Menu>
 
 
@@ -448,27 +422,8 @@ const handleImageUpload = (event) => {
              />
 </MenuItem>
         </Menu>
-        
-         <Button onClick={handleDocumentInformationClick}  style ={{color:'white'}}>Document Information</Button>
-       <Menu
-         anchorEl={documentInformationAnchorEl}
-          open={Boolean(documentInformationAnchorEl)}
-          onClose={handleDocumentInformationClose}>
-         <MenuItem>
-        Document Name
-           <input
-              type="text"
-              value={documentName}
-              onChange={(e) => setDocumentName(e.target.value)}
-             />
-        </MenuItem>
-        <MenuItem>
-        {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
-        </MenuItem>
-        <MenuItem>
-        {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
-        </MenuItem>
-         </Menu>
+      <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
+       
          <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
         <label htmlFor="fileInput">
           <Button component="span" style={{ position: 'absolute', left: '12.5vw', top: '10vh',color: 'white'}}>
@@ -485,12 +440,7 @@ const handleImageUpload = (event) => {
           toolbarHidden
           editorState={editorState}
           editorStyle={{ fontSize: `${fontSize}px` }}
-          onChange={(newEditorState) => {
-            setEditorState(newEditorState);
-            countWords();
-            countCharacters();
-            countSelected();
-          }}
+          onChange={handleEditorStateChange}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
           spellCheck={true}

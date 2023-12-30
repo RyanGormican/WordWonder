@@ -17,6 +17,11 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+body {
+  background-color: #282c34;
+  margin: 0;
+  padding: 0;
+}
 .links {
   display: flex;
   position: absolute;
@@ -41,8 +46,10 @@ top:20px;
 }
 .activity{
 flex-direction:row;
+justify-content:center;
 align-items:center;
 width:75vw;
+display:flex;
 }
 .App-link {
   color: #61dafb;
