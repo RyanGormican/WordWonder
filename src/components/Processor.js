@@ -7,7 +7,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
-import createStyles from 'draft-js-custom-styles';
 import { stateToHTML } from 'draft-js-export-html';
 const Processor = () => {
   const [words, setWords] = useState(0);
@@ -132,7 +131,7 @@ const handleTextCommandSelect = (style) => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
   };
 
-const {styles, customStyleFn, exporter } = createStyles(['font-size','color'])
+
 const handleFontSizeIncrease = () => {
   if (fontSize < 92) {
     const newFontSize = fontSize + 1;
@@ -183,8 +182,7 @@ const convertToUppercase = () => {
 };
 
 const changeFontSize = (newFontSize) => {
-  const newEditorState = styles.fontSize.remove(editorState);
-  setEditorState(styles.fontSize.add(newEditorState,  `${newFontSize}px`));
+  
 };
 
    const handleTextStylesClick = (event) => {
@@ -195,8 +193,7 @@ const changeFontSize = (newFontSize) => {
   }
  const handleColor = (event) => {
  setTextColor(event);
-   const newEditorState = styles.color.remove(editorState);
-  setEditorState(styles.color.add(newEditorState,  event));   
+ 
  }
  
  const handleBulletList = () => {
@@ -223,8 +220,9 @@ const handleQuoteBlock = () => {
 
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();
-  const inlineStyles = exporter(editorState);
-  const htmlContent = stateToHTML(contentState, { inlineStyles });
+
+
+  const htmlContent = stateToHTML(contentState);
 
   const pdfElement = document.createElement('div');
   pdfElement.innerHTML = htmlContent;
@@ -235,6 +233,7 @@ const downloadDocument = () => {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
   });
 };
+
 
 
   return (
@@ -323,13 +322,13 @@ const downloadDocument = () => {
           onClose={handleTextStylesClose}
         >
           <MenuItem>
-            Font Size
+            Font Size (WIP)
             <Button onClick={handleFontSizeDecrease}>-</Button>
             {fontSize}
             <Button onClick={handleFontSizeIncrease}>+</Button>
           </MenuItem>
           <MenuItem onClick={() => handleTextCommandSelect('COLOR')}>
-            Text Color 
+            Text Color (WIP)
             <input
               type="color"
               value={textColor}
@@ -382,7 +381,6 @@ const downloadDocument = () => {
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
           spellCheck={true}
-          customStyleFn={customStyleFn}
         />
       </div>
     </div>
