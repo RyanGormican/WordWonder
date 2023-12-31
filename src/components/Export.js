@@ -6,7 +6,7 @@ const Export = ({editorState, documentName, exportFormat} ) => {
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();
   const htmlContent = stateToHTML(contentState);
-   if (exportFormat === 'pdf') {
+   if (exportFormat === 'pdf' ) {
   const pdfElement = document.createElement('div');
   pdfElement.innerHTML = htmlContent;
 
@@ -21,6 +21,12 @@ const downloadDocument = () => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `${documentName}.txt`;
+      link.click();
+    }else if (exportFormat === 'html') {
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${documentName}.html`;
       link.click();
     }
 };

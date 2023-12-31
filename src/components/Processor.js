@@ -192,7 +192,7 @@ const AtomicBlock = (props) => {
           <Icon icon="mdi:import" height="30" />
           </Button>
         </label>  
-       {/*Download PDFs and TXTs*/}
+       {/*Download PDFs, HTMLs, and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 

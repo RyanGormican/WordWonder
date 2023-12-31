@@ -203,7 +203,7 @@ const getDocumentSize = async () => {
 
   let sizeInBytes, size;
 
-  if (exportFormat === 'pdf') {
+  if (exportFormat === 'pdf' || exportFormat ==='html') {
     const htmlContent = stateToHTML(contentState);
     const pdf = await html2pdf().from(htmlContent).outputPdf();
     sizeInBytes = pdf.length;
@@ -268,7 +268,7 @@ return (
       >
         <option value="pdf">PDF</option>
         <option value="txt">TXT</option>
-      
+        <option value="html">HTML</option>
       </select>
         </MenuItem>
         <MenuItem>
