@@ -37,7 +37,7 @@ const handleDocumentNameChange = (e) => {
 
   const intervalId = setInterval(() => {
     const currentTime = new Date();
-    const duration = Math.floor((currentTime - startTime) / 1000); // in seconds
+    const duration = Math.floor((currentTime - startTime) / 1000); 
     setSessionDuration(duration);
   }, 1000);
 
