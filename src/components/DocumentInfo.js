@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
@@ -15,6 +15,7 @@ const [words, setWords] = useState(0);
   const [documentSize, setDocumentSize] = useState(null);
   const [ avgWordsPerSentence, setAvgWordsPerSentence] = useState(0);
   const [avgSentencesPerParagraph, setAvgSentencesPerParagraph] = useState(0);
+  const [sessionDuration, setSessionDuration] = useState(0);
      const [maxWordCount, setMaxWordCount] = useState(0);
      const [minWordCount, setMinWordCount] = useState(0);
      const [maxCharacterCount, setMaxCharacterCount] = useState(0);
@@ -31,6 +32,17 @@ const [words, setWords] = useState(0);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
+  useEffect(() => {
+  const startTime = new Date();
+
+  const intervalId = setInterval(() => {
+    const currentTime = new Date();
+    const duration = Math.floor((currentTime - startTime) / 1000); // in seconds
+    setSessionDuration(duration);
+  }, 1000);
+
+  return () => clearInterval(intervalId);
+}, []);
 
  const checkCharacterLimit = () => {
   if (maxCharacterCount > 0){
@@ -197,6 +209,15 @@ const getDocumentSize = async () => {
 
 setDocumentSize(size);
 };
+const formatDuration = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const pad = (num) => (num < 10 ? `0${num}` : num);
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
+};
 
 return ( 
 	<div>
@@ -214,7 +235,7 @@ return (
     horizontal: 'left',
   }}>
          <MenuItem>
-        Document Name
+        Document Name  <Icon icon="solar:document-bold" />
            <input
               type="text"
               value={documentName}
@@ -222,7 +243,10 @@ return (
              />
         </MenuItem>
         <MenuItem>
-        Document Size: {documentSize} 
+        Document Size <Icon icon="material-symbols:save" /> {documentSize} 
+        </MenuItem>
+        <MenuItem>
+        Session Duration <Icon icon="mdi:clock" /> {formatDuration(sessionDuration)}
         </MenuItem>
         <MenuItem onClick={(event) => handleTextStatsMenuClick(event)}> 
         Text Statistics <Icon icon="material-symbols:text-ad" />

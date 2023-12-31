@@ -240,7 +240,7 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
+         {/*Document Naming, Session Duration Counter, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
