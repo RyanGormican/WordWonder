@@ -9,7 +9,7 @@ const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(nul
 const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
 const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
 const [textAlignmentMenuAnchorEl, setTextAlignmentMenuAnchorEl] = useState(null);
-
+const [headingsMenuAnchorEl, setHeadingsMenuAnchorEl] = useState(null);
 const handleBulletList = () => {
     handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
 };
@@ -22,16 +22,30 @@ handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'code-block'));
 const handleQuoteBlock = () => {
   handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'blockquote'));
 }
+const handleHeading = (header) => {
+  handleEditorStateChange(RichUtils.toggleBlockType(editorState, header));
+};
+const handleParagraph = () => {
+handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unstyled'));
+};
 const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
     setTextBlockingMenuAnchorEl(null);
     setTextAlignmentMenuAnchorEl(null);
+   setHeadingsMenuAnchorEl(null);
   };
 
   const handleTextFormattingMenuClose = () => {
     setTextFormattingMenuAnchorEl(null);
   };
+  const handleHeadingsMenuClick = (event) => {
+        setHeadingsMenuAnchorEl(event.currentTarget);
+  };
+  const handleHeadingsMenuClose= () =>{
+     setHeadingsMenuAnchorEl(null);
+  }
+
  const handleTextBlockingMenuClick = (event) => {
   setTextBlockingMenuAnchorEl(event.currentTarget);
 };
@@ -150,8 +164,15 @@ return (
    <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
 </MenuItem>
 <MenuItem onClick={(event) => handleTextAlignmentMenuClick(event)}>
-Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-paragraph-text-alignment-align-left-formatting-right" />
+Text Alignment(WIP) <Icon icon="streamline:interface-text-formatting-left-align-paragraph-text-alignment-align-left-formatting-right" />
  <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
+</MenuItem>
+ <MenuItem onClick={(event) => handleHeadingsMenuClick(event)}>
+ Headings  <Icon icon="tabler:heading" />
+   <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
+</MenuItem>
+<MenuItem onClick={handleParagraph}>
+Paragraph <Icon icon="system-uicons:paragraph-end" />
 </MenuItem>
 </Menu>
 
@@ -237,6 +258,38 @@ Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-parag
         </MenuItem>
          <MenuItem onClick={() => handleTextAlignment('justify')}>
           Justify (WIP)<Icon icon="bi:justify" />
+        </MenuItem>
+</Menu>
+<Menu
+  anchorEl={headingsMenuAnchorEl}
+  open={Boolean(headingsMenuAnchorEl)}
+  onClose={handleHeadingsMenuClose}
+ anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+        <MenuItem onClick={() => handleHeading('header-one')}>
+        <Icon icon="gravity-ui:heading-1" />
+        </MenuItem>
+         <MenuItem onClick={() => handleHeading('header-two')}>
+        <Icon icon="gravity-ui:heading-2" />
+        </MenuItem>
+         <MenuItem onClick={() => handleHeading('header-three')}>
+        <Icon icon="gravity-ui:heading-3" />
+        </MenuItem>
+          <MenuItem onClick={() => handleHeading('header-four')}>
+        <Icon icon="gravity-ui:heading-4" />
+        </MenuItem>
+         <MenuItem onClick={() => handleHeading('header-five')}>
+        <Icon icon="gravity-ui:heading-5" />
+        </MenuItem>
+         <MenuItem onClick={() => handleHeading('header-six')}>
+        <Icon icon="gravity-ui:heading-6" />
         </MenuItem>
 </Menu>
 </div>

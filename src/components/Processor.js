@@ -192,13 +192,14 @@ const AtomicBlock = (props) => {
           <Icon icon="mdi:import" height="30" />
           </Button>
         </label>  
-       {/*Download PDF's and TXT's*/}
+       {/*Download PDFs and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
-       {/*Bold Italicize Underline Strikethrough
+       {/*Bold Italicize Underline Strikethrough, Make Selection Uppercase,  Clear Formatting
        Bullet List, Numbered List, Code Blocks, Quote Blocks
-       Clear Formatting
+       H1 H2 H3 H4 H5 H6
+       Paragraph
        */}
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
