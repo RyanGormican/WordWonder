@@ -61,7 +61,20 @@ const handleTextCommandSelect = (style) => {
   const handleTextFormattingMenuClick = (event) => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
   };
+const handleClearFormatting = () => {
+  const selection = editorState.getSelection();
+  const contentState = editorState.getCurrentContent();
+  const currentInlineStyle = editorState.getCurrentInlineStyle();
 
+  let newContentState = contentState;
+
+  currentInlineStyle.forEach((style) => {
+    newContentState = Modifier.removeInlineStyle(newContentState, selection, style);
+  });
+ 
+  const newEditorState = EditorState.push(editorState, newContentState, 'change-inline-style');
+  handleEditorStateChange(newEditorState);
+};
 const convertToUppercase = () => {
   const selection = editorState.getSelection();
   const contentState = editorState.getCurrentContent();
@@ -123,8 +136,9 @@ return (
   <MenuItem onClick={(event) => handleTextBlockingMenuClick(event)}>
   Text Blocking  <Icon icon="mdi:text" />
 </MenuItem>
-
- 
+<MenuItem onClick={handleClearFormatting}>
+  Clear Formatting <Icon icon="material-symbols:format-clear"/>
+</MenuItem>
 </Menu>
 
 <Menu

@@ -149,28 +149,27 @@ const downloadDocument = () => {
 };
 
 
+const blockRenderer = (contentBlock) => {
+  const type = contentBlock.getType();
 
- const blockRenderer = (contentBlock) => {
-    const type = contentBlock.getType();
+  if (type === 'atomic') {
+    return {
+      component: AtomicBlock,
+      editable: false,
+    };
+  }
 
-    if (type === 'atomic') {
-      return {
-        component: AtomicBlock,
-        editable: false,
-      };
-    }
+  return null;
+};
 
-    return null;
-  };
-
-  const AtomicBlock = (props) => {
+const AtomicBlock = (props) => {
   const { block, contentState } = props;
   const entity = contentState.getEntity(block.getEntityAt(0));
+
   const { src, height, width } = entity.getData();
 
   return <img src={src} alt="Uploaded" style={{ width, height, maxWidth: '100%' }} />;
 };
-
 
   const handleEditorStateChange = (newEditorState) => {
     dispatch(updateEditorState(newEditorState));
@@ -181,7 +180,12 @@ const downloadDocument = () => {
   return (
     <div>
       <span className="activity">
+       {/*Insert Images*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
+       {/*Bold Italicize Underline Strikethrough
+       Bullet List, Numbered List, Code Blocks, Quote Blocks
+       Clear Formatting
+       */}
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
 
@@ -207,6 +211,7 @@ const downloadDocument = () => {
              />
 </MenuItem>
         </Menu>
+         {/*Document Naming, Word and Character Count (Document and Selected) */}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
        
          <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />

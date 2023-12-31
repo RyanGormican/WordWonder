@@ -3,11 +3,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
-import { AtomicBlockUtils, EditorState } from 'draft-js';
-
+import { AtomicBlockUtils, convertToRaw, convertFromRaw, Entity, ContentState,EditorState, RichUtils, Modifier, SelectionState } from 'draft-js';
 const Insert = ({ editorState, handleEditorStateChange }) => {
   const [insertCommandAnchorE1, setInsertCommandAnchorEl] = useState(null);
-
   const handleInsertCommandClose = () => {
     setInsertCommandAnchorEl(null);
   };
@@ -51,6 +49,7 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
     }
   };
 
+
   return (
     <div>
       <Button onClick={handleInsertCommandClick} style={{ color: 'white' }}>
@@ -72,7 +71,7 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
             />
             Image <Icon icon="material-symbols:photo" />
           </MenuItem>
-        </label>
+                </label>
       </Menu>
     </div>
   );
