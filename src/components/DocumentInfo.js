@@ -115,19 +115,19 @@ return (
         {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
         </MenuItem>
         <MenuItem>
-        Word Limit
-           <input
-            type="number"
-            value={maxWordCount}
-            onChange={(e) => setMaxWordCount(e.target.value)}
-          />
-        </MenuItem>
-        <MenuItem>
           Minimum Word Count
           <input
             type="number"
             value={minWordCount}
             onChange={(e) => setMinWordCount(e.target.value)}
+          />
+        </MenuItem>
+        <MenuItem>
+       Maximum Word Count
+           <input
+            type="number"
+            value={maxWordCount}
+            onChange={(e) => setMaxWordCount(e.target.value)}
           />
         </MenuItem>
          </Menu>
