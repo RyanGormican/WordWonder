@@ -143,15 +143,15 @@ return (
     onClick={(event) => handleTextFormattingMenuClick(event)}
   >
     Text Formatting <Icon icon="quill:formatting" />
+     <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
   </MenuItem>
   <MenuItem onClick={(event) => handleTextBlockingMenuClick(event)}>
   Text Blocking  <Icon icon="mdi:text" />
+   <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
 </MenuItem>
 <MenuItem onClick={(event) => handleTextAlignmentMenuClick(event)}>
 Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-paragraph-text-alignment-align-left-formatting-right" />
-</MenuItem>
-<MenuItem onClick={handleClearFormatting}>
-  Clear Formatting <Icon icon="material-symbols:format-clear"/>
+ <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
 </MenuItem>
 </Menu>
 
@@ -168,6 +168,9 @@ Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-parag
     horizontal: 'left',
   }}
 >
+<MenuItem onClick={handleClearFormatting}>
+  Clear Formatting <Icon icon="material-symbols:format-clear"/>
+</MenuItem>
 <MenuItem onClick={() => handleTextCommandSelect('BOLD')}>
     Bold <Icon icon="ooui:bold-a" height="20" />
   </MenuItem>

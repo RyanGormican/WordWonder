@@ -2,6 +2,7 @@ import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
+import MenuList from '@mui/material/MenuList'; 
 import { Icon } from '@iconify/react';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState },ref) => {
 const [words, setWords] = useState(0);
@@ -158,7 +159,8 @@ return (
         {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
         </MenuItem>
         <MenuItem  onClick={(event) => handleTextLimitsMenuClick(event)}>
-        Text Limits <Icon icon="zondicons:exclamation-outline" />
+        Text Limits <Icon icon="zondicons:exclamation-outline" />   
+        <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
          </Menu>
         <Menu
