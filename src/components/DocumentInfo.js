@@ -6,7 +6,7 @@ import MenuList from '@mui/material/MenuList';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToHTML } from 'draft-js-export-html';
-const DocumentInfo = ({ documentName, onDocumentNameChange, editorState },ref) => {
+const DocumentInfo = ({ documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
     const [selectedWords, setSelectedWords] = useState(0);
@@ -43,7 +43,12 @@ const handleDocumentNameChange = (e) => {
 
   return () => clearInterval(intervalId);
 }, []);
+ 
 
+  const handleExportFormatChange = (event) => {
+    onExportFormatChange(event.target.value);
+    setDocumentInformationAnchorE1(null);
+  };
  const checkCharacterLimit = () => {
   if (maxCharacterCount > 0){
     setIsOverCharacterLimit(characters > maxCharacterCount);
@@ -195,10 +200,18 @@ const getSelectedText = (editorState) => {
   }));
 const getDocumentSize = async () => {
   const contentState = editorState.getCurrentContent();
-  const htmlContent = stateToHTML(contentState);
-  const pdf = await html2pdf().from(htmlContent).outputPdf();
-  const sizeInBytes = pdf.length;
-  let size;
+
+  let sizeInBytes, size;
+
+  if (exportFormat === 'pdf') {
+    const htmlContent = stateToHTML(contentState);
+    const pdf = await html2pdf().from(htmlContent).outputPdf();
+    sizeInBytes = pdf.length;
+  } else if (exportFormat === 'txt') {
+    const plainText = contentState.getPlainText();
+    sizeInBytes = new Blob([plainText], { type: 'text/plain' }).size;
+  }
+
   if (sizeInBytes < 1024) {
     size = sizeInBytes + ' B';
   } else if (sizeInBytes < 1024 * 1024) {
@@ -207,8 +220,9 @@ const getDocumentSize = async () => {
     size = (sizeInBytes / (1024 * 1024)).toFixed(2) + ' MB';
   }
 
-setDocumentSize(size);
+  setDocumentSize(size);
 };
+
 const formatDuration = (seconds) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -244,6 +258,18 @@ return (
         </MenuItem>
         <MenuItem>
         Document Size <Icon icon="material-symbols:save" /> {documentSize} 
+        </MenuItem>
+        <MenuItem>
+        Document Type <select
+        id="exportFormat"
+        value={exportFormat}
+        onChange={handleExportFormatChange}
+        style={{ marginLeft: '8px' }}
+      >
+        <option value="pdf">PDF</option>
+        <option value="txt">TXT</option>
+      
+      </select>
         </MenuItem>
         <MenuItem>
         Session Duration <Icon icon="mdi:clock" /> {formatDuration(sessionDuration)}

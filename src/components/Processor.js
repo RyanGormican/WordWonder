@@ -2,7 +2,6 @@ import React, { useState,useRef } from 'react';
 import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, ContentState, InlineStyle, SelectionState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
-import html2pdf from 'html2pdf.js';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
@@ -11,6 +10,7 @@ import { stateToHTML } from 'draft-js-export-html';
 import DocumentInfo from './DocumentInfo';
 import Insert from './Insert';
 import TextCommands from './TextCommands';
+import Export from './Export';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -22,6 +22,7 @@ const Processor = () => {
   const [linkInput, setLinkInput] = useState('');
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
+  const [exportFormat, setExportFormat] = useState('pdf');
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
 const [undoStack, setUndoStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
@@ -134,21 +135,6 @@ const changeFontSize = (newFontSize) => {
  }
    
 
-const downloadDocument = () => {
-  const contentState = editorState.getCurrentContent();
-
-
-  const htmlContent = stateToHTML(contentState);
-
-  const pdfElement = document.createElement('div');
-  pdfElement.innerHTML = htmlContent;
-
-  html2pdf(pdfElement, {
-    margin: 10,
-    filename: `${documentName}.pdf`,
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  });
-};
 
 const handleUndo = () => {
   if (undoStack.length > 0) {
@@ -206,9 +192,8 @@ const AtomicBlock = (props) => {
           <Icon icon="mdi:import" height="30" />
           </Button>
         </label>  
-         <Button onClick={downloadDocument} style={{ color: 'white'}}>
-          <Icon icon="material-symbols:download" height="30" />
-        </Button>
+       {/*Download PDF's and TXT's*/}
+        <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough
@@ -240,8 +225,8 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Session Duration Counter, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
-      <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
+         {/*Document Naming, Session Duration Counter, Set Export Format(PDF&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
+      <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
        <Icon icon= "material-symbols:undo" height="30" />
