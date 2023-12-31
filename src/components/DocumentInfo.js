@@ -29,7 +29,9 @@ const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
     const [selectedWords, setSelectedWords] = useState(0);
      const [maxWordCount, setMaxWordCount] = useState(500);
+     const [minWordCount, setMinWordCount] = useState(150);
   const [isOverWordLimit, setIsOverWordLimit] = useState(false);
+  const [isUnderMinLimit, setIsUnderMinLimit] = useState(false);
   const [selectedCharacters, setSelectedCharacters] = useState(0);
   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
    const handleDocumentInformationClose = () => {
@@ -40,6 +42,7 @@ const [words, setWords] = useState(0);
   };
   const checkWordLimit = () => {
     setIsOverWordLimit(words > maxWordCount);
+    setIsUnderMinLimit(words > minWordCount);
   };
   const countWords = () => {
     const contentState = editorState.getCurrentContent();
@@ -92,7 +95,7 @@ const getSelectedText = (editorState) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit ? 'red' : 'white' }}>Document Information</Button>
+	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit ? 'red': isUnderMinLimit ? 'green' :  'white' }}>Document Information</Button>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
@@ -117,6 +120,14 @@ return (
             type="number"
             value={maxWordCount}
             onChange={(e) => setMaxWordCount(e.target.value)}
+          />
+        </MenuItem>
+        <MenuItem>
+          Minimum Word Count
+          <input
+            type="number"
+            value={minWordCount}
+            onChange={(e) => setMinWordCount(e.target.value)}
           />
         </MenuItem>
          </Menu>
