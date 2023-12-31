@@ -4,14 +4,22 @@ import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import MenuList from '@mui/material/MenuList'; 
 import { Icon } from '@iconify/react';
+import html2pdf from 'html2pdf.js';
+import { stateToHTML } from 'draft-js-export-html';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState },ref) => {
 const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
     const [selectedWords, setSelectedWords] = useState(0);
+    const [paragraphs, setParagraphs] = useState(0);
+  const [sentences, setSentences] = useState(0);
+  const [documentSize, setDocumentSize] = useState(null);
+  const [ avgWordsPerSentence, setAvgWordsPerSentence] = useState(0);
+  const [avgSentencesPerParagraph, setAvgSentencesPerParagraph] = useState(0);
      const [maxWordCount, setMaxWordCount] = useState(0);
      const [minWordCount, setMinWordCount] = useState(0);
      const [maxCharacterCount, setMaxCharacterCount] = useState(0);
      const [minCharacterCount, setMinCharacterCount] = useState(0);
+     const [avgWordLength, setAvgWordLength] = useState(0);
   const [isOverWordLimit, setIsOverWordLimit] = useState(false);
   const [isUnderWordLimit, setIsUnderWordLimit] = useState(false);
   const [isOverCharacterLimit, setIsOverCharacterLimit] = useState(false);
@@ -19,6 +27,7 @@ const [words, setWords] = useState(0);
   const [selectedCharacters, setSelectedCharacters] = useState(0);
   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null); 
   const [textLimitsMenuAnchorEl, setTextLimitstMenuAnchorEl] = useState(null);
+    const [textStatsMenuAnchorEl, setTextStatsMenuAnchorEl] = useState(null);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
@@ -58,6 +67,7 @@ const countSelected = () => {
    const handleDocumentInformationClose = () => {
     setDocumentInformationAnchorE1(null);
     setTextLimitstMenuAnchorEl(null);
+    setTextStatsMenuAnchorEl(null);
   };
    const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
@@ -67,6 +77,12 @@ const countSelected = () => {
   };
    const handleTextLimitsMenuClose = (event) => {
     setTextLimitstMenuAnchorEl(null);
+  };
+   const handleTextStatsMenuClick = (event) => {
+    setTextStatsMenuAnchorEl(event.currentTarget);
+  };
+   const handleTextStatsMenuClose = (event) => {
+    setTextStatsMenuAnchorEl(null);
   };
   const checkWordLimit = () => {
   if (maxWordCount > 0){
@@ -91,6 +107,40 @@ const countSelected = () => {
      checkWordLimit();
   };
 
+   const calculateAvgWordLength = () => {
+    const contentState = editorState.getCurrentContent();
+    const plainText = contentState.getPlainText('');
+    const words = plainText.split(/\s+/).filter((word) => word.length > 0);
+    const totalWordLength = words.reduce((total, word) => total + word.length, 0);
+    setAvgWordLength(words.length ? totalWordLength / words.length : 0);
+  };
+    const countParagraphs = () => {
+    const contentState = editorState.getCurrentContent();
+    const blocks = contentState.getBlocksAsArray();
+    setParagraphs(blocks.length);
+  };
+
+  const countSentences = () => {
+    const contentState = editorState.getCurrentContent();
+    const plainText = contentState.getPlainText('');
+    const sentences = plainText.split(/[.!?]+/).filter(Boolean);
+    setSentences(sentences.length);
+  };
+
+  
+  const calculateAvgSentencesPerParagraph = () => {
+    setAvgSentencesPerParagraph(paragraphs ? sentences / paragraphs : 0);
+  };
+  const calculateAvgWordsPerSentence = () => {
+    setAvgWordsPerSentence(sentences? words / sentences : 0);
+  }
+const countDocumentStatistics = () => {
+    calculateAvgWordLength();
+     countParagraphs();
+    countSentences();
+    calculateAvgWordsPerSentence()
+    calculateAvgSentencesPerParagraph();
+  };
 const getSelectedText = (editorState) => {
   const selection = editorState.getSelection();
   const contentState = editorState.getCurrentContent();
@@ -109,7 +159,8 @@ const getSelectedText = (editorState) => {
     contentState.getBlockMap().keySeq().toList().indexOf(startKey),
     contentState.getBlockMap().keySeq().toList().indexOf(endKey) + 1
   );
-  
+ 
+
   const selectedText = selectedBlocks.map((block, index) => {
     const blockText = block.getText();
     if (index === 0) {
@@ -127,7 +178,24 @@ const getSelectedText = (editorState) => {
     countWords,
     countCharacters,
     countSelected,
+    countDocumentStatistics,
   }));
+const getDocumentSize = async () => {
+  const contentState = editorState.getCurrentContent();
+  const htmlContent = stateToHTML(contentState);
+  const pdf = await html2pdf().from(htmlContent).outputPdf();
+  const sizeInBytes = pdf.length;
+  let size;
+  if (sizeInBytes < 1024) {
+    size = sizeInBytes + ' B';
+  } else if (sizeInBytes < 1024 * 1024) {
+    size = (sizeInBytes / 1024).toFixed(2) + ' KB';
+  } else {
+    size = (sizeInBytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+
+setDocumentSize(size);
+};
 
 return ( 
 	<div>
@@ -153,16 +221,52 @@ return (
              />
         </MenuItem>
         <MenuItem>
-        {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
+        Document Size: {documentSize}  <Button onClick ={getDocumentSize} style={{color:'black'}}>  <Icon icon="material-symbols:calculate" /> </Button>
         </MenuItem>
-        <MenuItem>
-        {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
+        <MenuItem onClick={(event) => handleTextStatsMenuClick(event)}> 
+        Text Statistics <Icon icon="material-symbols:text-ad" />
+        <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
         <MenuItem  onClick={(event) => handleTextLimitsMenuClick(event)}>
         Text Limits <Icon icon="zondicons:exclamation-outline" />   
         <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
          </Menu>
+         <Menu
+          anchorEl={textStatsMenuAnchorEl}
+  open={Boolean(textStatsMenuAnchorEl)}
+  onClose={handleTextStatsMenuClose}
+ anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+         >
+          <MenuItem>
+        {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
+        </MenuItem>
+        <MenuItem>
+        Average Word Length {avgWordLength}
+        </MenuItem>
+        <MenuItem>
+        {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
+        </MenuItem>
+        <MenuItem>
+        {sentences === 0 || sentences > 1 ? `${sentences} sentences` : `${sentences} sentence `}
+        </MenuItem>
+        <MenuItem>
+        Average Words per Sentence {avgWordsPerSentence}
+        </MenuItem>
+        <MenuItem>
+        {paragraphs === 0 || paragraphs > 1 ? `${paragraphs} paragraphs` : `${paragraphs} paragraph `}
+        </MenuItem>
+        <MenuItem>
+        Average Sentences per Paragraph {avgSentencesPerParagraph}
+        </MenuItem>
+        </Menu>
         <Menu
   anchorEl={textLimitsMenuAnchorEl}
   open={Boolean(textLimitsMenuAnchorEl)}

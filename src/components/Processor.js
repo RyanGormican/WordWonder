@@ -176,6 +176,7 @@ const AtomicBlock = (props) => {
     documentInfoRef.current.countWords();
     documentInfoRef.current.countCharacters();
     documentInfoRef.current.countSelected();
+    documentInfoRef.current.countDocumentStatistics();
   };
   return (
     <div>
@@ -220,7 +221,7 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Word and Character Count (Document and Selected), Visual Max & Min Count Checker for Word & Character */}
+         {/*Document Naming, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Word and Sentences per Paragraph Counts, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
       
         <Button style={{color:'white'}}>
