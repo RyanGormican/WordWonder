@@ -1,6 +1,7 @@
 import './App.css';
 import { Icon } from '@iconify/react';
 import Processor from './components/Processor';
+import 'contenido/dist/styles.css';
 function App() {
   return (
     <div className="App">

@@ -70,3 +70,18 @@ processor-wrapper {
     transform: rotate(360deg);
   }
 }
+.editor-content .public-DraftStyleDefault {
+  text-align: left;
+}
+
+.editor-content .left-align {
+  text-align: left;
+}
+
+.editor-content .center-align {
+  text-align: center;
+}
+
+.editor-content .right-align {
+  text-align: right;
+}

@@ -180,6 +180,15 @@ const AtomicBlock = (props) => {
   return (
     <div>
       <span className="activity">
+        <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
+        <label htmlFor="fileInput">
+          <Button component="span" style={{color: 'white'}}>
+          <Icon icon="mdi:import" height="30" />
+          </Button>
+        </label>  
+         <Button onClick={downloadDocument} style={{ color: 'white'}}>
+          <Icon icon="material-symbols:download" height="30" />
+        </Button>
        {/*Insert Images*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough
@@ -211,17 +220,14 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Word and Character Count (Document and Selected) */}
+         {/*Document Naming, Word and Character Count (Document and Selected), Visual Max Word Count Checker */}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
-       
-         <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
-        <label htmlFor="fileInput">
-          <Button component="span" style={{ position: 'absolute', left: '12.5vw', top: '10vh',color: 'white'}}>
-          <Icon icon="mdi:import" height="30" />
-          </Button>
-        </label>  
-         <Button onClick={downloadDocument} style={{ position: 'absolute', right: '12.5vw', top: '10vh',color: 'white'}}>
-          <Icon icon="material-symbols:download" height="30" />
+      
+        <Button style={{color:'white'}}>
+       <Icon icon= "material-symbols:undo" height="30" />
+        </Button>
+        <Button style={{color:'white'}}>
+        <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
       </span>
 

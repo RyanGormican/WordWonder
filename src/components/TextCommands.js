@@ -8,7 +8,7 @@ const TextCommands = ({editorState, handleEditorStateChange}) => {
 const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
 const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
 const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
-
+const [textAlignmentMenuAnchorEl, setTextAlignmentMenuAnchorEl] = useState(null);
 
 const handleBulletList = () => {
   handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
@@ -26,6 +26,7 @@ const handleTextCommandClose = () => {
     setTextCommandAnchorEl(null);
     setTextFormattingMenuAnchorEl(null);
     setTextBlockingMenuAnchorEl(null);
+    setTextAlignmentMenuAnchorEl(null);
   };
 
   const handleTextFormattingMenuClose = () => {
@@ -37,6 +38,9 @@ const handleTextCommandClose = () => {
 
 const handleTextBlockingMenuClose = () => {
   setTextBlockingMenuAnchorEl(null);
+};
+const handleTextAlignmentMenuClose = () => {
+  setTextAlignmentMenuAnchorEl(null);
 };
 
 const handleTextCommandSelect = (style) => {
@@ -52,7 +56,11 @@ const handleTextCommandSelect = (style) => {
   }
 };
 
-  
+const handleTextAlignment = (alignment) => {
+
+};
+
+
   const handleTextCommandClick = (event) => {
     setTextCommandAnchorEl(event.currentTarget);
   };
@@ -60,6 +68,9 @@ const handleTextCommandSelect = (style) => {
 
   const handleTextFormattingMenuClick = (event) => {
     setTextFormattingMenuAnchorEl(event.currentTarget);
+  };
+  const handleTextAlignmentMenuClick = (event)=> {
+   setTextAlignmentMenuAnchorEl(event.currentTarget);
   };
 const handleClearFormatting = () => {
   const selection = editorState.getSelection();
@@ -136,6 +147,9 @@ return (
   <MenuItem onClick={(event) => handleTextBlockingMenuClick(event)}>
   Text Blocking  <Icon icon="mdi:text" />
 </MenuItem>
+<MenuItem onClick={(event) => handleTextAlignmentMenuClick(event)}>
+Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-paragraph-text-alignment-align-left-formatting-right" />
+</MenuItem>
 <MenuItem onClick={handleClearFormatting}>
   Clear Formatting <Icon icon="material-symbols:format-clear"/>
 </MenuItem>
@@ -195,6 +209,32 @@ return (
     <MenuItem onClick ={handleQuoteBlock}>
     Quote <Icon icon="bi:quote" />
    </MenuItem>
+</Menu>
+<Menu
+  anchorEl={textAlignmentMenuAnchorEl}
+  open={Boolean(textAlignmentMenuAnchorEl)}
+  onClose={handleTextAlignmentMenuClose}
+ anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+ <MenuItem onClick={() => handleTextAlignment('left')}>
+          Left (WIP)<Icon icon="bi:text-left" />
+        </MenuItem>
+        <MenuItem onClick={() => handleTextAlignment('center')}>
+          Center (WIP)<Icon icon="bi:text-center" />
+        </MenuItem>
+        <MenuItem onClick={() => handleTextAlignment('right')}>
+          Right (WIP)<Icon icon="bi:text-right" />
+        </MenuItem>
+         <MenuItem onClick={() => handleTextAlignment('justify')}>
+          Justify (WIP)<Icon icon="bi:justify" />
+        </MenuItem>
 </Menu>
 </div>
 );

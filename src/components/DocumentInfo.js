@@ -28,6 +28,8 @@ const countSelected = () => {
 const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
     const [selectedWords, setSelectedWords] = useState(0);
+     const [maxWordCount, setMaxWordCount] = useState(500);
+  const [isOverWordLimit, setIsOverWordLimit] = useState(false);
   const [selectedCharacters, setSelectedCharacters] = useState(0);
   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
    const handleDocumentInformationClose = () => {
@@ -35,6 +37,9 @@ const [words, setWords] = useState(0);
   };
    const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
+  };
+  const checkWordLimit = () => {
+    setIsOverWordLimit(words > maxWordCount);
   };
   const countWords = () => {
     const contentState = editorState.getCurrentContent();
@@ -44,7 +49,9 @@ const [words, setWords] = useState(0);
       .filter((word) => word.length > 0)
       .length;
     setWords(wordCount);
+     checkWordLimit();
   };
+
 const getSelectedText = (editorState) => {
   const selection = editorState.getSelection();
   const contentState = editorState.getCurrentContent();
@@ -85,7 +92,7 @@ const getSelectedText = (editorState) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}  style ={{color:'white'}}>Document Information</Button>
+	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit ? 'red' : 'white' }}>Document Information</Button>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
@@ -103,6 +110,14 @@ return (
         </MenuItem>
         <MenuItem>
         {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
+        </MenuItem>
+        <MenuItem>
+        Word Limit
+           <input
+            type="number"
+            value={maxWordCount}
+            onChange={(e) => setMaxWordCount(e.target.value)}
+          />
         </MenuItem>
          </Menu>
 	</div>

@@ -10,6 +10,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "contenido": "^1.2.10",
     "css-minimizer-webpack-plugin": "^5.0.1",
     "define-lazy-prop": "^3.0.0",
     "draft-convert": "^2.1.13",
