@@ -220,7 +220,7 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Word and Character Count (Document and Selected), Visual Max & Min Word Count Checker */}
+         {/*Document Naming, Word and Character Count (Document and Selected), Visual Max & Min Count Checker for Word & Character */}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
       
         <Button style={{color:'white'}}>

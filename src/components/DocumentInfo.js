@@ -2,13 +2,41 @@ import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
+import { Icon } from '@iconify/react';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState },ref) => {
-  const handleDocumentNameChange = (e) => {
+const [words, setWords] = useState(0);
+   const [characters, setCharacters] = useState(0);
+    const [selectedWords, setSelectedWords] = useState(0);
+     const [maxWordCount, setMaxWordCount] = useState(0);
+     const [minWordCount, setMinWordCount] = useState(0);
+     const [maxCharacterCount, setMaxCharacterCount] = useState(0);
+     const [minCharacterCount, setMinCharacterCount] = useState(0);
+  const [isOverWordLimit, setIsOverWordLimit] = useState(false);
+  const [isUnderWordLimit, setIsUnderWordLimit] = useState(false);
+  const [isOverCharacterLimit, setIsOverCharacterLimit] = useState(false);
+  const [isUnderCharacterLimit, setIsUnderCharacterLimit] = useState(false);
+  const [selectedCharacters, setSelectedCharacters] = useState(0);
+  const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null); 
+const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
+  };
+
+ const checkCharacterLimit = () => {
+  if (maxCharacterCount > 0){
+    setIsOverCharacterLimit(characters > maxCharacterCount);
+  }else{
+    setIsOverCharacterLimit(false);
+  }
+  if (minCharacterCount > 0){
+      setIsUnderCharacterLimit(characters > minCharacterCount);
+  }else{
+    setIsUnderCharacterLimit(false);
+  }
   };
  const countCharacters = () => {
     const contentState = editorState.getCurrentContent();
     const plainText = contentState.getPlainText('');
+    checkCharacterLimit();
     setCharacters(plainText.length);
   };
 const countSelected = () => {
@@ -25,15 +53,6 @@ const countSelected = () => {
   setSelectedWords(selectedWordCount);
   setSelectedCharacters(selectedCharacterCount);
   };
-const [words, setWords] = useState(0);
-   const [characters, setCharacters] = useState(0);
-    const [selectedWords, setSelectedWords] = useState(0);
-     const [maxWordCount, setMaxWordCount] = useState(500);
-     const [minWordCount, setMinWordCount] = useState(150);
-  const [isOverWordLimit, setIsOverWordLimit] = useState(false);
-  const [isUnderMinLimit, setIsUnderMinLimit] = useState(false);
-  const [selectedCharacters, setSelectedCharacters] = useState(0);
-  const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null);
    const handleDocumentInformationClose = () => {
     setDocumentInformationAnchorE1(null);
   };
@@ -41,8 +60,16 @@ const [words, setWords] = useState(0);
     setDocumentInformationAnchorE1(event.currentTarget);
   };
   const checkWordLimit = () => {
+  if (maxWordCount > 0){
     setIsOverWordLimit(words > maxWordCount);
-    setIsUnderMinLimit(words > minWordCount);
+  }else{
+    setIsOverWordLimit(false);
+  }
+  if (minWordCount > 0){
+    setIsUnderWordLimit(words > minWordCount);
+  }else{
+    setIsUnderWordLimit(false);
+  }
   };
   const countWords = () => {
     const contentState = editorState.getCurrentContent();
@@ -95,11 +122,19 @@ const getSelectedText = (editorState) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit ? 'red': isUnderMinLimit ? 'green' :  'white' }}>Document Information</Button>
+	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  'white' }}>Document Information</Button>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
-          onClose={handleDocumentInformationClose}>
+          onClose={handleDocumentInformationClose}
+          anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'left',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}>
          <MenuItem>
         Document Name
            <input
@@ -115,6 +150,9 @@ return (
         {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
         </MenuItem>
         <MenuItem>
+        Text Limits <Icon icon="zondicons:exclamation-outline" />
+        </MenuItem>
+        <MenuItem>
           Minimum Word Count
           <input
             type="number"
@@ -128,6 +166,22 @@ return (
             type="number"
             value={maxWordCount}
             onChange={(e) => setMaxWordCount(e.target.value)}
+          />
+        </MenuItem>
+         <MenuItem>
+          Minimum Character Count
+          <input
+            type="number"
+            value={minCharacterCount}
+            onChange={(e) => setMinCharacterCount(e.target.value)}
+          />
+        </MenuItem>
+        <MenuItem>
+       Maximum Character Count
+           <input
+            type="number"
+            value={maxCharacterCount}
+            onChange={(e) => setMaxCharacterCount(e.target.value)}
           />
         </MenuItem>
          </Menu>
