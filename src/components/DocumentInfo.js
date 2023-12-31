@@ -17,6 +17,7 @@ const [words, setWords] = useState(0);
   const [isUnderCharacterLimit, setIsUnderCharacterLimit] = useState(false);
   const [selectedCharacters, setSelectedCharacters] = useState(0);
   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null); 
+  const [textLimitsMenuAnchorEl, setTextLimitstMenuAnchorEl] = useState(null);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
@@ -55,9 +56,16 @@ const countSelected = () => {
   };
    const handleDocumentInformationClose = () => {
     setDocumentInformationAnchorE1(null);
+    setTextLimitstMenuAnchorEl(null);
   };
    const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
+  };
+    const handleTextLimitsMenuClick = (event) => {
+    setTextLimitstMenuAnchorEl(event.currentTarget);
+  };
+   const handleTextLimitsMenuClose = (event) => {
+    setTextLimitstMenuAnchorEl(null);
   };
   const checkWordLimit = () => {
   if (maxWordCount > 0){
@@ -149,10 +157,24 @@ return (
         <MenuItem>
         {characters === 0 || characters > 1 ? `${characters} characters (${selectedCharacters} selected)` : `${characters} character (${selectedCharacters} selected)`}
         </MenuItem>
-        <MenuItem>
+        <MenuItem  onClick={(event) => handleTextLimitsMenuClick(event)}>
         Text Limits <Icon icon="zondicons:exclamation-outline" />
         </MenuItem>
-        <MenuItem>
+         </Menu>
+        <Menu
+  anchorEl={textLimitsMenuAnchorEl}
+  open={Boolean(textLimitsMenuAnchorEl)}
+  onClose={handleTextLimitsMenuClose}
+ anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+  <MenuItem>
           Minimum Word Count
           <input
             type="number"
@@ -184,7 +206,7 @@ return (
             onChange={(e) => setMaxCharacterCount(e.target.value)}
           />
         </MenuItem>
-         </Menu>
+</Menu>
 	</div>
 );
 }
