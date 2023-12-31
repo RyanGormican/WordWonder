@@ -85,3 +85,11 @@ processor-wrapper {
 .editor-content .right-align {
   text-align: right;
 }
+.DraftEditor-root .public-DraftStyleDefault-pre.DraftStyleDefault-block,
+.DraftEditor-root .public-DraftEditor-content .public-DraftStyleDefault-block {
+  position: relative;
+}
+
+.DraftEditor-root .public-DraftEditor-content .public-DraftStyleDefault-block .HIGHLIGHT {
+  background-color: yellow; /* Change this to the desired highlight color */
+}

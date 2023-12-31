@@ -23,6 +23,8 @@ const Processor = () => {
   const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
    const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
+const [undoStack, setUndoStack] = useState([]);
+const [redoStack, setRedoStack] = useState([]);
 
  const [lineSpacing, setLineSpacing] = useState(1.5); 
  const [documentName, setDocumentName] = useState('document');
@@ -148,6 +150,22 @@ const downloadDocument = () => {
   });
 };
 
+const handleUndo = () => {
+  if (undoStack.length > 0) {
+    const prevState = undoStack.pop();
+    setRedoStack((prevRedoStack) => [editorState, ...prevRedoStack]);
+    dispatch(updateEditorState(prevState));
+  }
+};
+
+const handleRedo = () => {
+  if (redoStack.length > 0) {
+    const nextState = redoStack.shift();
+    setUndoStack((prevUndoStack) => [...prevUndoStack, editorState]);
+    dispatch(updateEditorState(nextState));
+  }
+};
+
 
 const blockRenderer = (contentBlock) => {
   const type = contentBlock.getType();
@@ -165,13 +183,14 @@ const blockRenderer = (contentBlock) => {
 const AtomicBlock = (props) => {
   const { block, contentState } = props;
   const entity = contentState.getEntity(block.getEntityAt(0));
-
   const { src, height, width } = entity.getData();
 
   return <img src={src} alt="Uploaded" style={{ width, height, maxWidth: '100%' }} />;
 };
 
   const handleEditorStateChange = (newEditorState) => {
+  setUndoStack((prevUndoStack) => [...prevUndoStack, newEditorState]);
+  setRedoStack([]);   
     dispatch(updateEditorState(newEditorState));
     documentInfoRef.current.countWords();
     documentInfoRef.current.countCharacters();
@@ -221,13 +240,13 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Characters per Word along with Words per Senteces and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
+         {/*Document Naming, Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState}/>
       
-        <Button style={{color:'white'}}>
+        <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
        <Icon icon= "material-symbols:undo" height="30" />
         </Button>
-        <Button style={{color:'white'}}>
+        <Button onClick={handleRedo}style={{ color: redoStack.length > 0 ? 'white' : 'grey', pointerEvents: redoStack.length > 0 ? 'auto' : 'none' }}>
         <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
       </span>

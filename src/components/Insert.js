@@ -49,7 +49,6 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
     }
   };
 
-
   return (
     <div>
       <Button onClick={handleInsertCommandClick} style={{ color: 'white' }}>
@@ -71,7 +70,8 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
             />
             Image <Icon icon="material-symbols:photo" />
           </MenuItem>
-                </label>
+           </label>
+   
       </Menu>
     </div>
   );
