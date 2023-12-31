@@ -71,6 +71,7 @@ const countSelected = () => {
   };
    const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
+    getDocumentSize();
   };
     const handleTextLimitsMenuClick = (event) => {
     setTextLimitstMenuAnchorEl(event.currentTarget);
@@ -112,7 +113,7 @@ const countSelected = () => {
     const plainText = contentState.getPlainText('');
     const words = plainText.split(/\s+/).filter((word) => word.length > 0);
     const totalWordLength = words.reduce((total, word) => total + word.length, 0);
-    setAvgWordLength(words.length ? totalWordLength / words.length : 0);
+    setAvgWordLength(words.length ? (totalWordLength / words.length).toFixed(1) : 0);
   };
     const countParagraphs = () => {
     const contentState = editorState.getCurrentContent();
@@ -129,10 +130,10 @@ const countSelected = () => {
 
   
   const calculateAvgSentencesPerParagraph = () => {
-    setAvgSentencesPerParagraph(paragraphs ? sentences / paragraphs : 0);
+    setAvgSentencesPerParagraph(paragraphs ? (sentences / paragraphs).toFixed(1) : 0);
   };
   const calculateAvgWordsPerSentence = () => {
-    setAvgWordsPerSentence(sentences? words / sentences : 0);
+    setAvgWordsPerSentence(sentences? (words / sentences).toFixed(1) : 0);
   }
 const countDocumentStatistics = () => {
     calculateAvgWordLength();
@@ -221,7 +222,7 @@ return (
              />
         </MenuItem>
         <MenuItem>
-        Document Size: {documentSize}  <Button onClick ={getDocumentSize} style={{color:'black'}}>  <Icon icon="material-symbols:calculate" /> </Button>
+        Document Size: {documentSize} 
         </MenuItem>
         <MenuItem onClick={(event) => handleTextStatsMenuClick(event)}> 
         Text Statistics <Icon icon="material-symbols:text-ad" />
