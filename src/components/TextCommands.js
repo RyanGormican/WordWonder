@@ -11,7 +11,7 @@ const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
 const [textAlignmentMenuAnchorEl, setTextAlignmentMenuAnchorEl] = useState(null);
 
 const handleBulletList = () => {
-  handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
+    handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'unordered-list-item'));
 };
 const handleNumberList = () => {
   handleEditorStateChange(RichUtils.toggleBlockType(editorState, 'ordered-list-item'));
@@ -169,8 +169,8 @@ Text Alignment <Icon icon="streamline:interface-text-formatting-left-align-parag
   }}
 >
 <MenuItem onClick={handleClearFormatting}>
-  Clear Formatting <Icon icon="material-symbols:format-clear"/>
-</MenuItem>
+    Clear Formatting <Icon icon="material-symbols:format-clear" height="20" />
+  </MenuItem>
 <MenuItem onClick={() => handleTextCommandSelect('BOLD')}>
     Bold <Icon icon="ooui:bold-a" height="20" />
   </MenuItem>
