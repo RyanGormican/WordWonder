@@ -1,8 +1,7 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useImperativeHandle } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-import MenuList from '@mui/material/MenuList'; 
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToHTML } from 'draft-js-export-html';
@@ -56,7 +55,7 @@ const handleDocumentNameChange = (e) => {
     setIsOverCharacterLimit(false);
   }
   if (minCharacterCount > 0){
-      setIsUnderCharacterLimit(characters > minCharacterCount);
+      setIsUnderCharacterLimit(characters >= minCharacterCount);
   }else{
     setIsUnderCharacterLimit(false);
   }
@@ -109,7 +108,7 @@ const countSelected = () => {
     setIsOverWordLimit(false);
   }
   if (minWordCount > 0){
-    setIsUnderWordLimit(words > minWordCount);
+    setIsUnderWordLimit(words >= minWordCount);
   }else{
     setIsUnderWordLimit(false);
   }

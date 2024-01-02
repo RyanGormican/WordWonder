@@ -131,6 +131,81 @@ const handleNextInstance = (direction) => {
   }, [search, occurrences, currentInstance, editorState, handleEditorStateChange, memoizedSearchPositions]);
 
   
+const replaceText = () => {
+  if (search && replace) {
+    if (memoizedSearchPositions && memoizedSearchPositions[currentInstance]) {
+      const { blockKey, offset } = memoizedSearchPositions[currentInstance];
+
+      const contentState = editorState.getCurrentContent();
+      const selection = SelectionState.createEmpty(blockKey).merge({
+        anchorOffset: offset,
+        focusOffset: offset + search.length,
+      });
+
+      const newContentState = Modifier.replaceText(
+        contentState,
+        selection,
+        replace
+      );
+
+      const newEditorState = EditorState.push(
+        editorState,
+        newContentState,
+        'replace-text'
+      );
+
+      handleEditorStateChange(newEditorState);
+    }
+  }
+};
+
+
+
+
+const replaceAll = () => {
+  console.log('Executing replaceAll');
+  if (search && replace) {
+    let newContentState = editorState.getCurrentContent();
+
+    memoizedSearchPositions.forEach(({ blockKey, offset }) => {
+      console.log('Block key:', blockKey);
+      console.log('Offset:', offset);
+
+      const selection = SelectionState.createEmpty(blockKey).merge({
+        anchorOffset: offset,
+        focusOffset: offset + search.length,
+      });
+
+      console.log('Current selection:', selection.toJS());
+
+      newContentState = Modifier.replaceText(
+        newContentState,
+        selection,
+        replace
+      );
+    });
+
+    console.log('New content state:', newContentState.toJS());
+
+    const newEditorState = EditorState.push(
+      editorState,
+      newContentState,
+      'replace-text'
+    );
+
+    console.log('New editor state:', newEditorState);
+
+    handleEditorStateChange(newEditorState);
+    return;
+  }
+
+  handleEditorStateChange(editorState);
+};
+
+
+
+
+
 
   return (
     <div>
@@ -187,7 +262,7 @@ const handleNextInstance = (direction) => {
             value={replace}
             onChange={(e) => setReplace(e.target.value)}
           />
-          <Button onClick={replaceText} Style={{color:'black'}}> Replace </Button> <Button onClick={replaceAll} Style={{color:'black'}}> Replace All </Button> 
+          <Button onClick={replaceText} style={{color:'black'}}> Replace </Button> <Button onClick={replaceAll} style={{color:'black'}}> Replace All </Button> 
         </MenuItem>
       </Menu>
     </div>

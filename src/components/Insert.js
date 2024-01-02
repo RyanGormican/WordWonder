@@ -3,7 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
-import { AtomicBlockUtils, convertToRaw, convertFromRaw, Entity, ContentState, EditorState, RichUtils, Modifier, SelectionState } from 'draft-js';
+import { AtomicBlockUtils, Entity, EditorState,  Modifier, } from 'draft-js';
 
 const Insert = ({ editorState, handleEditorStateChange }) => {
   const [insertCommandAnchorE1, setInsertCommandAnchorEl] = useState(null);

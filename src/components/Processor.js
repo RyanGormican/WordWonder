@@ -1,16 +1,13 @@
 import React, { useState,useRef } from 'react';
-import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, ContentState, InlineStyle, SelectionState } from 'draft-js';
+import {Editor} from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-import { getDocument } from 'pdfjs-dist';
-import { stateToHTML } from 'draft-js-export-html';
 import DocumentInfo from './DocumentInfo';
 import Insert,{handleImageUpload} from './Insert';
 import TextCommands from './TextCommands';
 import TextStyles from './TextStyles';
+import Import from './Import';
 import Export from './Export';
 import SearchAndReplace from './SearchAndReplace';
 import 'draft-js/dist/Draft.css'; 
@@ -21,13 +18,10 @@ const Processor = () => {
     const [dragging, setDragging] = useState(false);
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
-  const [linkInput, setLinkInput] = useState('');
-  const [isUppercase, setIsUppercase] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf');
   const [undoStack, setUndoStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
 
- const [lineSpacing, setLineSpacing] = useState(1.5); 
  const [documentName, setDocumentName] = useState('document');
 
   const handleDocumentNameChange = (newDocumentName) => {
@@ -35,46 +29,7 @@ const [redoStack, setRedoStack] = useState([]);
   };
 
 
-const loadPdf = async (file) => {
-  const reader = new FileReader();
 
-  reader.onload = async (event) => {
-    const arrayBuffer = event.target.result;
-    const pdfData = new Uint8Array(arrayBuffer);
-
-    try {
-      const loadingTask = getDocument({ data: pdfData });
-      const pdf = await loadingTask.promise;
-
-      let textContent = '';
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const pageText = await page.getTextContent();
-        textContent += pageText.items.map((item) => item.str).join(' ');
-      }
-
-      const contentState = ContentState.createFromText(textContent);
-      const newEditorState = EditorState.push(
-        editorState,
-        contentState,
-        'insert-characters'
-      );
-      handleEditorStateChange(newEditorState);
-    } catch (error) {
-      console.error('Error loading PDF:', error);
-    }
-  };
-
-  reader.readAsArrayBuffer(file);
-};
-
-const importDocument = (event) => {
-const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      loadPdf(file);
-    }
-};
 
 const handleUndo = () => {
   if (undoStack.length > 0) {
@@ -118,7 +73,7 @@ const handleRedo = () => {
 
       const reader = new FileReader();
       reader.onload = (readerEvent) => {
-        const imageDataUrl = readerEvent.target.result;
+       
      handleImageUpload(editorState, handleEditorStateChange, { target: { files: [imageFile] } });
       };
       reader.readAsDataURL(imageFile);
@@ -185,12 +140,8 @@ const AtomicBlock = (props) => {
   return (
     <div>
       <span className="activity">
-        <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput"  accept=".pdf" />
-        <label htmlFor="fileInput">
-          <Button component="span" style={{color: 'white'}}>
-          <Icon icon="mdi:import" height="30" />
-          </Button>
-        </label>  
+      {/*Import TXTs */}
+      <Import editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
        {/*Download PDFs, HTMLs, and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images & Date/Time*/}
@@ -217,12 +168,12 @@ const AtomicBlock = (props) => {
       </span>
 
       <div 
-      className={`drop-area ${dragging ? 'dragging' : ''}`}
+      className={`drop-area ${dragging ? 'dragging' : ''}processor`}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className="processor">
+      >
         <Editor
           toolbarHidden
           editorState={editorState}

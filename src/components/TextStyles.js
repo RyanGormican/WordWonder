@@ -2,8 +2,6 @@ import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-import { Icon } from '@iconify/react';
-import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, ContentState, InlineStyle, SelectionState } from 'draft-js';
 const TextStyles = ({editorState, handleEditorStateChange}) => {
   const [fontSize, setFontSize] = useState(14);
    const [textColor, setTextColor] = useState('black');
@@ -13,21 +11,6 @@ const TextStyles = ({editorState, handleEditorStateChange}) => {
     setTextStylesAnchorEl(null);
   };
 
-  const toggleInlineStyle = (style) => {
-  if (style.startsWith('fontSize')) {
-    setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
-    changeFontSize(fontSize);
-  } else if (style.startsWith('COLOR-')) {
-    setTextColor(style.replace('COLOR-', ''));
-    changeTextColor(textColor);
-  } else if (style === 'UPPERCASE') {
-  
-  } else {
-    handleEditorStateChange((prevEditorState) =>
-      RichUtils.toggleInlineStyle(prevEditorState, style)
-    );
-  }
-};
  
 
 
@@ -45,12 +28,6 @@ const handleFontSizeDecrease = () => {
     changeFontSize(newFontSize);
     setFontSize(newFontSize);
   }
-};
-
-const changeTextColor = (newColor) => {
-  handleEditorStateChange((prevEditorState) =>
-    RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
-  );
 };
 
 
