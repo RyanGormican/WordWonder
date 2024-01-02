@@ -6,14 +6,21 @@ import { Icon } from '@iconify/react';
 import { AtomicBlockUtils, convertToRaw, convertFromRaw, Entity, ContentState,EditorState, RichUtils, Modifier, SelectionState } from 'draft-js';
 const Insert = ({ editorState, handleEditorStateChange }) => {
   const [insertCommandAnchorE1, setInsertCommandAnchorEl] = useState(null);
+  const [dateTimeCommandAnchorE1, setDateTimeCommandAnchorE1] =useState(null);
   const handleInsertCommandClose = () => {
     setInsertCommandAnchorEl(null);
+    setDateTimeCommandAnchorE1(null);
   };
 
   const handleInsertCommandClick = (event) => {
     setInsertCommandAnchorEl(event.currentTarget);
   };
-
+    const handleDateTimeCommandClick = (event) => {
+    setDateTimeCommandAnchorE1(event.currentTarget);
+  };
+  const handleDateTimeCommandClose = (event) => {
+    setDateTimeCommandAnchorE1(null);
+  };
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
 
@@ -48,29 +55,77 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
       reader.readAsDataURL(file);
     }
   };
-  const handleInsertDateTime = () => {
+   const handleInsertDate = () => {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString();
+
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithText = Modifier.insertText(
+      contentState,
+      editorState.getSelection(),
+      formattedDate
+    );
+
+    const newEditorState = EditorState.push(
+      editorState,
+      contentStateWithText,
+      'insert-characters'
+    );
+
+    handleEditorStateChange(newEditorState);
+    setDateTimeCommandAnchorE1(null);
+  };
+
+  const handleInsertTime = () => {
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleTimeString();
+
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithText = Modifier.insertText(
+      contentState,
+      editorState.getSelection(),
+      formattedTime
+    );
+
+    const newEditorState = EditorState.push(
+      editorState,
+      contentStateWithText,
+      'insert-characters'
+    );
+
+    handleEditorStateChange(newEditorState);
+    setDateTimeCommandAnchorE1(null);
+  };
+ const handleInsertDateTime = () => {
     const currentDate = new Date();
     const formattedDateTime = currentDate.toLocaleString();
 
     const contentState = editorState.getCurrentContent();
-    const contentStateWithEntity = contentState.createEntity(
-      'DATETIME',
-      'IMMUTABLE',
-      { value: formattedDateTime }
+    const selection = editorState.getSelection();
+
+    const contentStateWithText = Modifier.insertText(
+      contentState,
+      selection,
+      formattedDateTime
     );
 
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(
+    const newEditorState = EditorState.push(
       editorState,
-      { currentContent: contentStateWithEntity },
-      'create-entity'
+      contentStateWithText,
+      'insert-characters'
     );
-
-    handleEditorStateChange(
-      AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+    const newSelection = selection.merge({
+      anchorOffset: selection.getEndOffset(),
+      focusOffset: selection.getEndOffset(),
+    });
+    const finalEditorState = EditorState.forceSelection(
+      newEditorState,
+      newSelection
     );
+    handleEditorStateChange(finalEditorState);
     setInsertCommandAnchorEl(null);
   };
+
   return (
     <div>
       <Button onClick={handleInsertCommandClick} style={{ color: 'white' }}>
@@ -93,10 +148,34 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
             Image <Icon icon="material-symbols:photo" />
           </MenuItem>
            </label>
-    <MenuItem onClick={handleInsertDateTime}>
-          Date/Time <Icon icon="fa-solid:clock" />
-        </MenuItem>
+          <MenuItem onClick ={handleDateTimeCommandClick}>
+             Date & Time <Icon icon="mdi:calendar" />
+           <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
+          </MenuItem>
       </Menu>
+      <Menu
+        anchorEl={dateTimeCommandAnchorE1}
+        open={Boolean(dateTimeCommandAnchorE1)}
+        onClose={handleDateTimeCommandClose}
+        anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+      >
+       <MenuItem onClick={handleInsertDateTime}>
+          Exact Date/Time <Icon icon="mdi:calendar" /> 
+        </MenuItem>
+        <MenuItem onClick = {handleInsertDate}>
+        Exact Date <Icon icon="clarity:date-line" />
+        </MenuItem>
+        <MenuItem onClick = {handleInsertTime}>
+        Exact Time <Icon icon="fa-solid:clock" />
+        </MenuItem>
+       </Menu>
     </div>
   );
 };
