@@ -1,49 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
-import { Editor, EditorState, Modifier,SelectionState,blockLength } from 'draft-js';
+import { EditorState, SelectionState, Modifier } from 'draft-js';
 
 const SearchAndReplace = ({ editorState, handleEditorStateChange }) => {
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
-  const [search, setSearch] = useState(null);
+  const [search, setSearch] = useState('');
+  const [replace, setReplace] = useState('');
   const [occurrences, setOccurrences] = useState(0);
   const [currentInstance, setCurrentInstance] = useState(0);
   const searchPositionsRef = useRef([]);
+const findSearchPositions = (editorState, term) => {
+  const contentState = editorState.getCurrentContent();
+  
+  const searchPositions = [];
 
-  const editorStateRef = useRef(editorState);
+  contentState.getBlockMap().forEach((block) => {
+    if (block) {
+      const text = block.getText();
 
-  useEffect(() => {
-    editorStateRef.current = editorState;
-  }, [editorState]);
+      if (text && term) {
+        const termText = term.toLowerCase();
+        const lowerCaseText = text.toLowerCase();
+        let startIndex = 0;
 
-  useEffect(() => {
-    if (search) {
-      const newSearchPositions = findSearchPositions(editorStateRef.current, search);
-      searchPositionsRef.current = newSearchPositions;
-      setOccurrences(newSearchPositions.length);
+        while (startIndex < lowerCaseText.length) {
+          const index = lowerCaseText.indexOf(termText, startIndex);
+
+          if (index !== -1) {
+            searchPositions.push({
+              blockKey: block.getKey(),
+              offset: index,
+            });
+            startIndex = index + termText.length;
+          } else {
+            break;
+          }
+        }
+      }
     }
-  }, [search, editorStateRef.current]);
+  });
 
-  useEffect(() => {
-    if (search && currentInstance >= 0 && currentInstance < occurrences) {
-      const contentState = editorStateRef.current.getCurrentContent();
+  return searchPositions;
+};
 
-      const { blockKey, offset } = searchPositionsRef.current[currentInstance];
-
-   const newSelection = SelectionState.createEmpty(blockKey).merge({
-  anchorOffset: blockLength,
-  focusOffset: blockLength,
-});
-const newEditorState = EditorState.forceSelection(
-  editorStateRef.current,
-  newSelection
-);
-handleEditorStateChange(newEditorState);
-      handleEditorStateChange(newEditorState);
-    }
-  }, [search, currentInstance, occurrences]);
+  const memoizedSearchPositions = useMemo(() => {
+    return findSearchPositions(editorState, search);
+  }, [editorState, search]);
 
   const handleSearchClose = () => {
     setSearchAnchorEl(null);
@@ -53,51 +58,79 @@ handleEditorStateChange(newEditorState);
     setSearchAnchorEl(event.currentTarget);
   };
 
-  const handleSearch = (event) => {
-    setSearch(event);
-    setCurrentInstance(0);
-    const newSearchPositions = findSearchPositions(editorStateRef.current, event);
-    searchPositionsRef.current = newSearchPositions;
-    setOccurrences(newSearchPositions.length);
-  };
+ const handleSearch = (event) => {
+  setSearch(event);
+  setCurrentInstance(0);
+};
 
-  const handleNextInstance = (direction) => {
-    setCurrentInstance((prevInstance) => {
-      let nextInstance = prevInstance + direction;
-      if (nextInstance < 0) {
-        nextInstance = occurrences - 1;
-      } else if (nextInstance >= occurrences) {
-        nextInstance = 0;
+const handleNextInstance = (direction) => {
+  setCurrentInstance((prevInstance) => {
+    if (occurrences > 0) {
+      const nextInstance = (prevInstance + direction + occurrences) % occurrences;
+
+      if (memoizedSearchPositions && memoizedSearchPositions[nextInstance]) {
+        const { blockKey, offset } = memoizedSearchPositions[nextInstance];
+
+        const newSelection = new SelectionState({
+          anchorKey: blockKey,
+          anchorOffset: offset,
+          focusKey: blockKey,
+          focusOffset: offset + search.length,
+        });
+
+        let newEditorState = EditorState.forceSelection(editorState, newSelection);
+        newEditorState = EditorState.moveFocusToEnd(newEditorState);
+
+        handleEditorStateChange(newEditorState);
       }
+
       return nextInstance;
-    });
-  };
-  const findSearchPositions = (editorState, term) => {
-    const contentState = editorState.getCurrentContent();
-    const termText = term.toLowerCase();
-    const searchPositions = [];
+    } else {
+      return prevInstance;
+    }
+  });
+};
 
-    contentState.getBlockMap().forEach((block) => {
-      const text = block.getText().toLowerCase();
-      let startIndex = 0;
 
-      while (startIndex < text.length) {
-        const index = text.indexOf(termText, startIndex);
 
-        if (index !== -1) {
-          searchPositions.push({
-            blockKey: block.getKey(),
-            offset: index,
-          });
-          startIndex = index + termText.length;
-        } else {
-          break;
-        }
+
+
+  useEffect(() => {
+    if (search) {
+      searchPositionsRef.current = memoizedSearchPositions;
+      setOccurrences(memoizedSearchPositions.length);
+
+      if (
+        currentInstance >= 0 &&
+        currentInstance < occurrences &&
+        searchPositionsRef.current &&
+        searchPositionsRef.current[currentInstance]
+      ) {
+        const { blockKey, offset } = searchPositionsRef.current[currentInstance];
+
+        const selection = SelectionState.createEmpty(blockKey).merge({
+          anchorOffset: offset,
+          focusOffset: offset + search.length,
+        });
+
+        const contentState = Modifier.replaceText(
+          editorState.getCurrentContent(),
+          selection,
+          search
+        );
+
+        const newEditorState = EditorState.push(
+          editorState,
+          contentState,
+          'insert-characters'
+        );
+
+        handleEditorStateChange(newEditorState);
       }
-    });
+    }
+  }, [search, occurrences, currentInstance, editorState, handleEditorStateChange, memoizedSearchPositions]);
 
-    return searchPositions;
-  };
+  
 
   return (
     <div>
@@ -116,15 +149,27 @@ handleEditorStateChange(newEditorState);
             onChange={(e) => handleSearch(e.target.value)}
           />
           <Icon icon="ph:magnifying-glass" />
-          {occurrences > 0 ? (  
-          <div>
-          {currentInstance + 1} / {occurrences}
-          </div>
-            ) : ( 
+          {occurrences > 0 ? (
             <div>
-            0 results found
+            {search.length>0? (
+            <div>
+              {currentInstance + 1} / {occurrences}
             </div>
+            ):(
+            ""
             )}
+            </div>
+          ) : (
+            <div>
+              {search ? (
+                <div>
+                  0 results found
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          )}
           <Icon
             icon="mdi:arrow-drop-up"
             onClick={() => handleNextInstance(-1)}
@@ -135,6 +180,14 @@ handleEditorStateChange(newEditorState);
             onClick={() => handleNextInstance(1)}
             style={{ cursor: 'pointer' }}
           />
+        </MenuItem>
+        <MenuItem>
+          <input
+            type="text"
+            value={replace}
+            onChange={(e) => setReplace(e.target.value)}
+          />
+          <Button onClick={replaceText} Style={{color:'black'}}> Replace </Button> <Button onClick={replaceAll} Style={{color:'black'}}> Replace All </Button> 
         </MenuItem>
       </Menu>
     </div>

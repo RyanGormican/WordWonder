@@ -3,7 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
-import { AtomicBlockUtils, Editor, EditorState, RichUtils,Modifier, Entity,ContentBlock, ContentState, InlineStyle, SelectionState } from 'draft-js';
+import {EditorState, RichUtils,Modifier,ContentBlock } from 'draft-js';
 const TextCommands = ({editorState, handleEditorStateChange}) => {
 const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
 const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
