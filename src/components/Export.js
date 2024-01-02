@@ -14,6 +14,9 @@ const Export = ({ editorState, documentName, exportFormat }) => {
           if (entity.getType() === 'DATETIME') {
             const value = entity.getData().value;
             return `<div>${value}</div>`;
+          } else if (entity.getType() === 'image') {
+            const data = entity.getData();
+            return `<img src="${data.src}" alt="${data.alt}" style="max-width: 100%;" />`;
           }
           return '';
         },
@@ -27,6 +30,7 @@ const Export = ({ editorState, documentName, exportFormat }) => {
       html2pdf(pdfElement, {
         margin: 10,
         filename: `${documentName}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       });
     } else if (exportFormat === 'txt') {

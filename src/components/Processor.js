@@ -12,6 +12,7 @@ import Insert,{handleImageUpload} from './Insert';
 import TextCommands from './TextCommands';
 import TextStyles from './TextStyles';
 import Export from './Export';
+import SearchAndReplace from './SearchAndReplace';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -212,6 +213,7 @@ const AtomicBlock = (props) => {
         <Button onClick={handleRedo}style={{ color: redoStack.length > 0 ? 'white' : 'grey', pointerEvents: redoStack.length > 0 ? 'auto' : 'none' }}>
         <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
+    <SearchAndReplace editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       </span>
 
       <div 
