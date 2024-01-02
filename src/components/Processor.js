@@ -8,23 +8,22 @@ import Button from '@mui/material/Button';
 import { getDocument } from 'pdfjs-dist';
 import { stateToHTML } from 'draft-js-export-html';
 import DocumentInfo from './DocumentInfo';
-import Insert from './Insert';
+import Insert,{handleImageUpload} from './Insert';
 import TextCommands from './TextCommands';
+import TextStyles from './TextStyles';
 import Export from './Export';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
 const Processor = () => {
     const documentInfoRef = useRef();
-  const [fontSize, setFontSize] = useState(14);
+    const [dragging, setDragging] = useState(false);
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
   const [linkInput, setLinkInput] = useState('');
-  const [textColor, setTextColor] = useState('black');
   const [isUppercase, setIsUppercase] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf');
-   const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
-const [undoStack, setUndoStack] = useState([]);
+  const [undoStack, setUndoStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
 
  const [lineSpacing, setLineSpacing] = useState(1.5); 
@@ -33,21 +32,7 @@ const [redoStack, setRedoStack] = useState([]);
   const handleDocumentNameChange = (newDocumentName) => {
     setDocumentName(newDocumentName);
   };
- const toggleInlineStyle = (style) => {
-  if (style.startsWith('fontSize')) {
-    setFontSize(parseInt(style.replace('FONT_SIZE-', ''), 10));
-    changeFontSize(fontSize);
-  } else if (style.startsWith('COLOR-')) {
-    setTextColor(style.replace('COLOR-', ''));
-    changeTextColor(textColor);
-  } else if (style === 'UPPERCASE') {
-    setIsUppercase(!isUppercase);
-  } else {
-    handleEditorStateChange((prevEditorState) =>
-      RichUtils.toggleInlineStyle(prevEditorState, style)
-    );
-  }
-};
+
 
 const loadPdf = async (file) => {
   const reader = new FileReader();
@@ -90,52 +75,6 @@ const file = event.target.files[0];
     }
 };
 
-  const handleTextStylesClose = () => {
-    setTextStylesAnchorEl(null);
-  };
-
- 
- 
-
-
-const handleFontSizeIncrease = () => {
-  if (fontSize < 92) {
-    const newFontSize = fontSize + 1;
-    changeFontSize(newFontSize);
-    setFontSize(newFontSize);
-  }
-};
-
-const handleFontSizeDecrease = () => {
-  if (fontSize > 1) {
-    const newFontSize = fontSize - 1;
-    changeFontSize(newFontSize);
-    setFontSize(newFontSize);
-  }
-};
-
-const changeTextColor = (newColor) => {
-  handleEditorStateChange((prevEditorState) =>
-    RichUtils.toggleInlineStyle(prevEditorState, `COLOR-${newColor}`)
-  );
-};
-
-
-const changeFontSize = (newFontSize) => {
-  
-};
-
-   const handleTextStylesClick = (event) => {
-    setTextStylesAnchorEl(event.currentTarget);
-  };
- 
- const handleColor = (event) => {
- setTextColor(event);
- 
- }
-   
-
-
 const handleUndo = () => {
   if (undoStack.length > 0) {
     const prevState = undoStack.pop();
@@ -152,7 +91,39 @@ const handleRedo = () => {
   }
 };
 
+ const handleDragEnter = (e) => {
+    e.preventDefault();
+    setDragging(true);
+  };
 
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+
+    const files = e.dataTransfer.files;
+
+    if (files.length > 0) {
+    
+      const imageFile = files[0];
+
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const imageDataUrl = readerEvent.target.result;
+     handleImageUpload(editorState, handleEditorStateChange, { target: { files: [imageFile] } });
+      };
+      reader.readAsDataURL(imageFile);
+    }
+  };
+ 
 const blockRenderer = (contentBlock) => {
   const type = contentBlock.getType();
 
@@ -174,6 +145,30 @@ const AtomicBlock = (props) => {
       const value = entity.getData().value;
       return <div>{value}</div>;
     }
+ 
+  if (entity.getType() === 'TABLE') {
+    const { rows, columns } = entity.getData();
+
+    return (
+      <table>
+        <tbody>
+          {Array.from({ length: rows }).map((_, rowIndex) => (
+            <tr key={rowIndex}>
+              {Array.from({ length: columns }).map((_, colIndex) => (
+                <td
+                 style={{border:'1px solid black'}}
+                >
+               
+                  Cell {rowIndex + 1}-{colIndex + 1}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   return <img src={src} alt="Uploaded" style={{ width, height, maxWidth: '100%' }} />;
 };
 
@@ -206,29 +201,8 @@ const AtomicBlock = (props) => {
        */}
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
+       <TextStyles editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
-
-         <Button onClick={handleTextStylesClick}  style ={{color:'white'}}>Text Styles</Button>
-        <Menu
-          anchorEl={textStylesAnchorEl}
-          open={Boolean(textStylesAnchorEl)}
-          onClose={handleTextStylesClose}
-        >
-          <MenuItem>
-            Font Size (WIP)
-            <Button onClick={handleFontSizeDecrease}>-</Button>
-            {fontSize}
-            <Button onClick={handleFontSizeIncrease}>+</Button>
-          </MenuItem>
-          <MenuItem>
-            Text Color (WIP)
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => handleColor(e.target.value)}
-             />
-</MenuItem>
-        </Menu>
          {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
@@ -240,11 +214,16 @@ const AtomicBlock = (props) => {
         </Button>
       </span>
 
-      <div className="processor">
+      <div 
+      className={`drop-area ${dragging ? 'dragging' : ''}`}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      className="processor">
         <Editor
           toolbarHidden
           editorState={editorState}
-          editorStyle={{ fontSize: `${fontSize}px` }}
           onChange={handleEditorStateChange}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
