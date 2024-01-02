@@ -170,7 +170,10 @@ const AtomicBlock = (props) => {
   const { block, contentState } = props;
   const entity = contentState.getEntity(block.getEntityAt(0));
   const { src, height, width } = entity.getData();
-
+    if (entity.getType() === 'DATETIME') {
+      const value = entity.getData().value;
+      return <div>{value}</div>;
+    }
   return <img src={src} alt="Uploaded" style={{ width, height, maxWidth: '100%' }} />;
 };
 
@@ -194,7 +197,7 @@ const AtomicBlock = (props) => {
         </label>  
        {/*Download PDFs, HTMLs, and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
-       {/*Insert Images*/}
+       {/*Insert Images & Date/Time*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough, Make Selection Uppercase,  Clear Formatting
        Bullet List, Numbered List, Code Blocks, Quote Blocks
@@ -226,7 +229,7 @@ const AtomicBlock = (props) => {
              />
 </MenuItem>
         </Menu>
-         {/*Document Naming, Session Duration Counter, Set Export Format(PDF&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
+         {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>

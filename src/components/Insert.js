@@ -48,7 +48,29 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
       reader.readAsDataURL(file);
     }
   };
+  const handleInsertDateTime = () => {
+    const currentDate = new Date();
+    const formattedDateTime = currentDate.toLocaleString();
 
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      'DATETIME',
+      'IMMUTABLE',
+      { value: formattedDateTime }
+    );
+
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity },
+      'create-entity'
+    );
+
+    handleEditorStateChange(
+      AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+    );
+    setInsertCommandAnchorEl(null);
+  };
   return (
     <div>
       <Button onClick={handleInsertCommandClick} style={{ color: 'white' }}>
@@ -71,7 +93,9 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
             Image <Icon icon="material-symbols:photo" />
           </MenuItem>
            </label>
-   
+    <MenuItem onClick={handleInsertDateTime}>
+          Date/Time <Icon icon="fa-solid:clock" />
+        </MenuItem>
       </Menu>
     </div>
   );
