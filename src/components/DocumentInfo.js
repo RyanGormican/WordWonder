@@ -294,7 +294,7 @@ return (
         <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
         <MenuItem  onClick={(event) => handleTextLimitsMenuClick(event)}>
-        Text Limits <Icon icon="zondicons:exclamation-outline" />   
+        Text Indicators <Icon icon="zondicons:exclamation-outline" />   
         <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
          </Menu>

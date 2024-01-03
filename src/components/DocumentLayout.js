@@ -68,6 +68,9 @@ const jumpToSection = (editorState, blockKey) => {
         <Icon icon="iconoir:page" height="30" />
       </Button>
       <Menu anchorEl={documentLayoutEl} open={Boolean(documentLayoutEl)} onClose={handleDocumentLayoutClose}>
+        <MenuItem>
+        Document Outline
+        </MenuItem>
         {sections.map((section) => (
         <MenuItem key={section.blockKey} onClick={() => handleSectionClick(section.blockKey)}>
         {section.title}
