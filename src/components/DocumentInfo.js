@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToHTML } from 'draft-js-export-html';
+import { stateToMarkdown } from 'draft-js-export-markdown';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
    const [characters, setCharacters] = useState(0);
@@ -28,21 +29,25 @@ const [words, setWords] = useState(0);
   const [documentInformationAnchorEl, setDocumentInformationAnchorE1] = useState(null); 
   const [textLimitsMenuAnchorEl, setTextLimitstMenuAnchorEl] = useState(null);
     const [textStatsMenuAnchorEl, setTextStatsMenuAnchorEl] = useState(null);
+    const [paused, setPaused]= useState(false);
+    const [startTime, setStartTime] = useState(null);
+    const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
+   useEffect(() => {
+    let intervalId;
+    const handleTick = () => {
+      setTotalElapsedSeconds((prevTotalElapsedSeconds) => prevTotalElapsedSeconds + 1);
+    }
+    if (!paused) {
+      intervalId = setInterval(handleTick, 1000);
+    }
+    return () => clearInterval(intervalId);
+  }, [paused]);
   useEffect(() => {
-  const startTime = new Date();
-
-  const intervalId = setInterval(() => {
-    const currentTime = new Date();
-    const duration = Math.floor((currentTime - startTime) / 1000); 
-    setSessionDuration(duration);
-  }, 1000);
-
-  return () => clearInterval(intervalId);
-}, []);
- 
+    setSessionDuration(totalElapsedSeconds);
+  }, [totalElapsedSeconds]);
 
   const handleExportFormatChange = (event) => {
     onExportFormatChange(event.target.value);
@@ -275,7 +280,14 @@ return (
       </select>
         </MenuItem>
         <MenuItem>
-        Session Duration <Icon icon="mdi:clock" /> {formatDuration(sessionDuration)}
+        Session Duration <Icon icon="mdi:clock" /> {formatDuration(sessionDuration)} 
+        <Button style={{color:'black' }}onClick={()=>setPaused(!paused)}> 
+        {paused ? (
+          <Icon icon="material-symbols:resume"/>
+        ) : ( 
+          <Icon icon="material-symbols:pause" />
+        )}
+        </Button>
         </MenuItem>
         <MenuItem onClick={(event) => handleTextStatsMenuClick(event)}> 
         Text Statistics <Icon icon="material-symbols:text-ad" />
