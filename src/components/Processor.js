@@ -10,6 +10,7 @@ import TextStyles from './TextStyles';
 import Import from './Import';
 import Export from './Export';
 import SearchAndReplace from './SearchAndReplace';
+import DocumentLayout from './DocumentLayout';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -194,9 +195,11 @@ const AtomicBlock = (props) => {
   return (
     <div>
       <span className="activity">
+      {/*Generate menu items of given headings. Click to jump to respective positioning of that heading text*/}
+      <DocumentLayout editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
       <Import editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
-       {/*Download PDFs, HTMLs, Markdowns and TXTs*/}
+       {/*Download/Export PDFs, HTMLs, Markdowns and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images & Date/Time*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
@@ -217,6 +220,7 @@ const AtomicBlock = (props) => {
         <Button onClick={handleRedo}style={{ color: redoStack.length > 0 ? 'white' : 'grey', pointerEvents: redoStack.length > 0 ? 'auto' : 'none' }}>
         <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
+    {/*Search and find # of occurance of a given text, Transition to the position of that given item*/}
     <SearchAndReplace editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       <Button style={{color: isListening? 'red':'white'}} onClick={handleVoiceButtonClick}>
       <Icon icon="mdi:microphone" height="30"/>

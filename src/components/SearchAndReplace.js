@@ -78,9 +78,11 @@ const handleNextInstance = (direction) => {
           focusOffset: offset + search.length,
         });
 
-        let newEditorState = EditorState.forceSelection(editorState, newSelection);
-        newEditorState = EditorState.moveFocusToEnd(newEditorState);
-
+        const newEditorState = EditorState.forceSelection(editorState, newSelection);
+  const selectedBlockNode = document.querySelector(`[data-offset-key="${blockKey}-0-0"]`);
+  if (selectedBlockNode) {
+    selectedBlockNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
         handleEditorStateChange(newEditorState);
       }
 
