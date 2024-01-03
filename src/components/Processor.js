@@ -15,6 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
 const Processor = () => {
     const documentInfoRef = useRef();
+    const { speechSynthesis } = window;
+
     const [dragging, setDragging] = useState(false);
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
@@ -63,6 +65,23 @@ const handleVoiceButtonClick = () => {
     const updatedEditorState = EditorState.push(editorState, updatedContentState, 'insert-characters');
     return updatedEditorState;
   };
+
+ const handleTextToSpeech = () => {
+    const selectedText = getSelectedText();
+    const utterance = new SpeechSynthesisUtterance(selectedText);
+    speechSynthesis.speak(utterance);
+};
+
+const getSelectedText = () => {
+  const selection = editorState.getSelection();
+  const currentContent = editorState.getCurrentContent();
+  const selectedBlock = currentContent.getBlockForKey(selection.getStartKey());
+  const start = selection.getStartOffset();
+  const end = selection.getEndOffset();
+  const selectedText = selectedBlock.getText().slice(start, end);
+
+  return selectedText;
+};
 
 
 
@@ -189,7 +208,7 @@ const AtomicBlock = (props) => {
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
        <TextStyles editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-         {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
+         {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
@@ -200,7 +219,10 @@ const AtomicBlock = (props) => {
         </Button>
     <SearchAndReplace editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       <Button style={{color: isListening? 'red':'white'}} onClick={handleVoiceButtonClick}>
-      <Icon icon="mdi:microphone" heigh="30"/>
+      <Icon icon="mdi:microphone" height="30"/>
+      </Button>
+      <Button onClick={handleTextToSpeech} style={{ color: 'white' }}>
+      <Icon icon="material-symbols:text-to-speech" height ="30"/>
       </Button>
     </span>
 
