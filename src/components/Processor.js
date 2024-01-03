@@ -1,5 +1,5 @@
 import React, { useState,useRef } from 'react';
-import {Editor} from 'draft-js';
+import {Editor, Modifier, EditorState} from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import Button from '@mui/material/Button';
@@ -21,13 +21,48 @@ const Processor = () => {
   const [exportFormat, setExportFormat] = useState('pdf');
   const [undoStack, setUndoStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
-
+  const [isListening, setIsListening] = useState(false); 
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    let recognitionIsRunning = false;
  const [documentName, setDocumentName] = useState('document');
 
   const handleDocumentNameChange = (newDocumentName) => {
     setDocumentName(newDocumentName);
   };
+const handleVoiceButtonClick = () => {
+    if (recognitionIsRunning) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  };
 
+  recognition.onstart = () => {
+    setIsListening(true);
+    recognitionIsRunning = true;
+  };
+
+  recognition.onend = () => {
+    setIsListening(false);
+    recognitionIsRunning = false;
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    const updatedEditorState = handleTranscribedText(transcript);
+    handleEditorStateChange(updatedEditorState);
+  };
+
+  const handleTranscribedText = (transcript) => {
+    const contentState = editorState.getCurrentContent();
+    const selectionState = editorState.getSelection();
+    const newContentState = contentState.createEntity('TOKEN', 'IMMUTABLE', { text: transcript });
+    const entityKey = newContentState.getLastCreatedEntityKey();
+    const textWithEntity = `${transcript} `;
+    const updatedContentState = Modifier.replaceText(contentState, selectionState, textWithEntity, null, entityKey);
+    const updatedEditorState = EditorState.push(editorState, updatedContentState, 'insert-characters');
+    return updatedEditorState;
+  };
 
 
 
@@ -154,7 +189,6 @@ const AtomicBlock = (props) => {
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
        <TextStyles editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-
          {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
@@ -165,7 +199,10 @@ const AtomicBlock = (props) => {
         <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
     <SearchAndReplace editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-      </span>
+      <Button style={{color: isListening? 'red':'white'}} onClick={handleVoiceButtonClick}>
+      <Icon icon="mdi:microphone" heigh="30"/>
+      </Button>
+    </span>
 
       <div 
       className={`drop-area ${dragging ? 'dragging' : ''}processor`}
