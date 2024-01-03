@@ -209,6 +209,9 @@ const getDocumentSize = async () => {
   } else if (exportFormat === 'txt') {
     const plainText = contentState.getPlainText();
     sizeInBytes = new Blob([plainText], { type: 'text/plain' }).size;
+  }else if (exportFormat === 'markdown') {
+    const markdownContent = stateToMarkdown(contentState);
+    sizeInBytes = new Blob([markdownContent], { type: 'text/markdown' }).size;
   }
 
   if (sizeInBytes < 1024) {
@@ -268,6 +271,7 @@ return (
         <option value="pdf">PDF</option>
         <option value="txt">TXT</option>
         <option value="html">HTML</option>
+        <option value="markdown">MARKDOWN</option>
       </select>
         </MenuItem>
         <MenuItem>

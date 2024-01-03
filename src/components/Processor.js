@@ -196,7 +196,7 @@ const AtomicBlock = (props) => {
       <span className="activity">
       {/*Import TXTs */}
       <Import editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
-       {/*Download PDFs, HTMLs, and TXTs*/}
+       {/*Download PDFs, HTMLs, Markdowns and TXTs*/}
         <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images & Date/Time*/}
        <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
@@ -208,7 +208,7 @@ const AtomicBlock = (props) => {
        <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
        <TextStyles editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-         {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
+         {/*Document Naming, Session Duration Counter, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>

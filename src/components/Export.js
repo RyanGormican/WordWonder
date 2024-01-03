@@ -46,6 +46,13 @@ const Export = ({ editorState, documentName, exportFormat }) => {
       link.href = URL.createObjectURL(blob);
       link.download = `${documentName}.html`;
       link.click();
+    }else if (exportFormat === 'markdown') {
+      const markdownContent = stateToMarkdown(contentState);
+      const blob = new Blob([markdownContent], { type: 'text/markdown' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${documentName}.md`;
+      link.click();
     }
   };
 
