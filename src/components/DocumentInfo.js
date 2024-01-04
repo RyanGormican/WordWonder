@@ -30,7 +30,6 @@ const [words, setWords] = useState(0);
   const [textLimitsMenuAnchorEl, setTextLimitstMenuAnchorEl] = useState(null);
     const [textStatsMenuAnchorEl, setTextStatsMenuAnchorEl] = useState(null);
     const [paused, setPaused]= useState(false);
-    const [startTime, setStartTime] = useState(null);
     const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);

@@ -10,6 +10,7 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
   const [dateTimeCommandAnchorE1, setDateTimeCommandAnchorE1] = useState(null);
   const [rowCount, setRowCount] = useState(1);
   const [colCount, setColCount] = useState(1);
+
   const handleInsertCommandClose = () => {
     setInsertCommandAnchorEl(null);
     setDateTimeCommandAnchorE1(null);

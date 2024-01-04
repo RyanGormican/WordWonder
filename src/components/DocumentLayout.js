@@ -3,7 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
-import { EditorState, ContentState, SelectionState, convertToRaw } from 'draft-js';
+import { EditorState, SelectionState } from 'draft-js';
 
 const DocumentLayout = ({ editorState, handleEditorStateChange}) => {
   const [documentLayoutEl, setDocumentLayoutEl] = useState(null);
