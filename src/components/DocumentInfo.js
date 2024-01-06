@@ -8,9 +8,9 @@ import { stateToHTML } from 'draft-js-export-html';
 import { stateToMarkdown } from 'draft-js-export-markdown';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
-   const [characters, setCharacters] = useState(0);
-    const [selectedWords, setSelectedWords] = useState(0);
-    const [paragraphs, setParagraphs] = useState(0);
+  const [characters, setCharacters] = useState(0);
+  const [selectedWords, setSelectedWords] = useState(0);
+  const [paragraphs, setParagraphs] = useState(0);
   const [sentences, setSentences] = useState(0);
   const [documentSize, setDocumentSize] = useState(null);
   const [ avgWordsPerSentence, setAvgWordsPerSentence] = useState(0);
