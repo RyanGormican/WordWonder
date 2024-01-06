@@ -58,7 +58,7 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity">
-      {/*Generate menu items of given headings. Click to jump to respective positioning of that heading text*/}
+      {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
       <DocumentLayout editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
       <Import editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
