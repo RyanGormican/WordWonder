@@ -247,6 +247,8 @@ const replaceAll = () => {
               )}
             </div>
           )}
+            {occurrences > 0 ? (
+            <div>
           <Icon
             icon="mdi:arrow-drop-up"
             onClick={() => handleNextInstance(-1)}
@@ -257,6 +259,11 @@ const replaceAll = () => {
             onClick={() => handleNextInstance(1)}
             style={{ cursor: 'pointer' }}
           />
+          </div>
+          ) : (
+         <div>
+         </div>
+          )}
         </MenuItem>
         <MenuItem>
           <input

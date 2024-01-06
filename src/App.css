@@ -91,5 +91,22 @@ processor-wrapper {
 }
 
 .DraftEditor-root .public-DraftEditor-content .public-DraftStyleDefault-block .HIGHLIGHT {
-  background-color: yellow; /* Change this to the desired highlight color */
+  background-color: yellow; 
 }
+
+.DraftEditor-root {
+  font-family: 'Arial, sans-serif';
+}
+
+.DraftEditor-contentBlock {
+  font-family: 'Arial, sans-serif';
+}
+
+.DraftEditor-contentBlock[font-family="Helvetica, sans-serif"] {
+  font-family: 'Helvetica, sans-serif';
+}
+
+.DraftEditor-contentBlock[font-family="Times New Roman, serif"] {
+  font-family: 'Times New Roman, serif';
+}
+
