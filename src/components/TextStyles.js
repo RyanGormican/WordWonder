@@ -55,13 +55,13 @@ return (
           open={Boolean(textStylesAnchorEl)}
           onClose={handleTextStylesClose}
         >
-          <MenuItem>
+          <MenuItem style={{ display: 'block' }}>
             Font Size (WIP)
             <Button onClick={handleFontSizeDecrease}>-</Button>
             {fontSize}
             <Button onClick={handleFontSizeIncrease}>+</Button>
           </MenuItem>
-          <MenuItem>
+          <MenuItem style={{ display: 'block' }}>
             Text Color (WIP)
             <input
               type="color"

@@ -265,7 +265,7 @@ const replaceAll = () => {
          </div>
           )}
         </MenuItem>
-        <MenuItem>
+        <MenuItem style={{ display: 'block' }}>
           <input
             type="text"
             value={replace}

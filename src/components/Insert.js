@@ -143,7 +143,7 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
           Date & Time <Icon icon="mdi:calendar" />
           <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }} />
         </MenuItem>
-        <MenuItem>
+        <MenuItem style={{ display: 'block' }}>
           <Button style={{ color: 'black' }} onClick={handleInsertTable}> Table(WIP) </Button> <Icon icon="material-symbols:table" />
           <div>
             Rows:
