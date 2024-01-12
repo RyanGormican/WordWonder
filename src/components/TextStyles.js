@@ -158,6 +158,6 @@ fonts: {
   },
   },
   colors :{ 
-    ...colorStyles,
+
   }
 };
