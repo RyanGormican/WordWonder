@@ -8,6 +8,8 @@ import { stateToHTML } from 'draft-js-export-html';
 import { stateToMarkdown } from 'draft-js-export-markdown';
 const DocumentInfo = ({ documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
+  const [totalSyllables, setTotalSyllables] = useState(0);
+
   const [characters, setCharacters] = useState(0);
   const [selectedWords, setSelectedWords] = useState(0);
   const [paragraphs, setParagraphs] = useState(0);
@@ -31,6 +33,7 @@ const [words, setWords] = useState(0);
     const [textStatsMenuAnchorEl, setTextStatsMenuAnchorEl] = useState(null);
     const [paused, setPaused]= useState(false);
     const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
+    const [fleschReadingScore, setFleschReadingScore ] = useState(0);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
@@ -84,6 +87,35 @@ const countSelected = () => {
   setSelectedWords(selectedWordCount);
   setSelectedCharacters(selectedCharacterCount);
   };
+  const syllableCount = (word) => {
+ 
+  word = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (word.length <= 3) {
+    return 1; 
+  }
+  const vowels = word.replace(/[^aeiouy]/g, '');
+  return vowels.length;
+};
+   const calculateTotalSyllables = () => {
+    const contentState = editorState.getCurrentContent();
+    const plainText = contentState.getPlainText();
+    const words = plainText.split(/\s+/).filter((word) => word.length > 0);
+    const totalSyllables = words.reduce((total, word) => total + syllableCount(word), 0);
+    setTotalSyllables(totalSyllables);
+  };
+const calculateReadability = () => {
+  calculateTotalSyllables();
+  console.log(totalSyllables); 
+  console.log(words);
+  console.log(sentences);
+  const fleschReadingScore =
+    words === 0 || sentences === 0
+      ? 0
+      : 206.835 - 1.015 * (words / sentences) - 84.6 * (totalSyllables / words);
+
+  setFleschReadingScore(fleschReadingScore.toFixed(2));
+};
+
    const handleDocumentInformationClose = () => {
     setDocumentInformationAnchorE1(null);
     setTextLimitstMenuAnchorEl(null);
@@ -101,6 +133,7 @@ const countSelected = () => {
   };
    const handleTextStatsMenuClick = (event) => {
     setTextStatsMenuAnchorEl(event.currentTarget);
+    calculateReadability();
   };
    const handleTextStatsMenuClose = (event) => {
     setTextStatsMenuAnchorEl(null);
@@ -238,6 +271,42 @@ const formatDuration = (seconds) => {
 
   return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
 };
+const getReadabilityColor = (score) => {
+  if (score >= 90) {
+    return 'green'; 
+  } else if (score >= 80) {
+    return 'orange';
+  } else if (score >= 70) {
+    return 'yellow';
+  } else if (score >= 60) {
+    return 'blue'; 
+  } else if (score >= 50) {
+    return 'purple'; 
+  } else if (score >= 30) {
+    return 'red'; 
+  } else {
+    return 'black';
+  }
+};
+
+const getReadabilityLevel = (score) => {
+  if (score >= 90) {
+    return '<Grade 6'; 
+  } else if (score >= 80) {
+    return 'Grade 6'; 
+  } else if (score >= 70) {
+    return 'Grade 7'; 
+  } else if (score >= 60) {
+    return 'Grade 8-9';
+  } else if (score >= 50) {
+    return 'Grade 10-12'; 
+  } else if (score >= 30) {
+    return 'College Student';
+  } else {
+    return 'College Graduate';
+  }
+};
+
 
 return ( 
 	<div>
@@ -310,6 +379,14 @@ return (
     horizontal: 'left',
   }}
          >
+         <MenuItem>
+        Flesch Reading Ease: {fleschReadingScore}
+          {fleschReadingScore > 0 && (
+    <span style={{ marginLeft: '10px', color: getReadabilityColor(fleschReadingScore) }}>
+      ({getReadabilityLevel(fleschReadingScore)})
+    </span>
+  )}
+         </MenuItem>
           <MenuItem>
         {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
         </MenuItem>
