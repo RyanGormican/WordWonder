@@ -43,30 +43,30 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
     setTextColor(color);
   };
 
-  const handleSetFont = (fontFamily) => {
- setFont(fontFamily);
-    const selection = editorState.getSelection();
+const handleSetFont = (fontFamily) => {
+  setFont(fontFamily);
 
-    const nextContentState = Object.keys(styleMap.fonts).reduce((contentState, font) => {
-      return Modifier.removeInlineStyle(contentState, selection, font);
-    }, editorState.getCurrentContent());
+  const selection = editorState.getSelection();
+  const nextContentState = Object.keys(styleMap).reduce((contentState, styleFont) => {
+    return Modifier.removeInlineStyle(contentState, selection, styleFont);
+  }, editorState.getCurrentContent());
 
-    let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
+  let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
+  const currentStyle = editorState.getCurrentInlineStyle();
 
-    const currentStyle = editorState.getCurrentInlineStyle();
+  if (selection.isCollapsed()) {
+    nextEditorState = currentStyle.reduce((state, styleFont) => {
+      return RichUtils.toggleInlineStyle(state, styleFont);
+    }, nextEditorState);
+  }
 
-    if (selection.isCollapsed()) {
-      nextEditorState = currentStyle.reduce((state, font) => {
-        return RichUtils.toggleInlineStyle(state, font);
-      }, nextEditorState);
-    }
+  if (!currentStyle.has(fontFamily)) {
+    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, fontFamily);
+  }
 
-    if (!currentStyle.has(fontFamily)) {
-      nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, fontFamily);
-    }
+  handleEditorStateChange(nextEditorState);
+};
 
-    handleEditorStateChange(nextEditorState);
-  };
 
   return (
     <div>
@@ -91,10 +91,11 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
               labelId="font-family-label"
               id="font-family-select"
               value={font}
+
               onChange={(e) => handleSetFont(e.target.value)}
             >
-              {Object.keys(styleMap.fonts).map((font) => (
-                <MenuItem key={font} value={font}style={{ fontFamily: styleMap.fonts[font].fontFamily }}>
+              {Object.keys(styleMap).map((font) => (
+                <MenuItem key={font} value={font}style={{ fontFamily: styleMap[font].fontFamily }}>
                   {font}
                 </MenuItem>
               ))}
@@ -110,7 +111,6 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
 export default TextStyles;
 
 export const styleMap = {
-fonts: {
   'Arial': {
     fontFamily: 'Arial',
   },
@@ -156,8 +156,5 @@ fonts: {
   'Verdana': {
     fontFamily: 'Verdana',
   },
-  },
-  colors :{ 
 
-  }
 };
