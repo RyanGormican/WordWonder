@@ -102,7 +102,7 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
             min="0"
             max="2"
             step="0.1"
-            value={settings.pich}
+            value={settings.pitch}
             onChange={(e) => handlePitchange(parseFloat(e.target.value))}
           />
           {settings.pitch}

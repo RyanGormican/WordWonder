@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import DocumentInfo from './DocumentInfo';
 import Insert from './Insert';
 import TextCommands from './TextCommands';
-import TextStyles from './TextStyles';
+import TextStyles,{styleMap} from './TextStyles';
 import Import from './Import';
 import Export from './Export';
 import SearchAndReplace from './SearchAndReplace';
@@ -78,7 +78,7 @@ const handleRedo = () => {
        Paragraph
        */}
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-
+       {/*Change Font Family from 15 fonts */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
          {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Listings, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
@@ -109,6 +109,7 @@ const handleRedo = () => {
         <Editor
           toolbarHidden
           editorState={editorState}
+          customStyleMap={styleMap}
           onChange={handleEditorStateChange}
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
