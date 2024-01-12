@@ -154,6 +154,7 @@ const handleTextFrequencyMenuClose = () => {
     setDocumentInformationAnchorE1(event.currentTarget);
     getDocumentSize();
     setWordDensity(generateDensity(editorState));
+    calculateReadability();
   };
     const handleTextLimitsMenuClick = (event) => {
     setTextLimitstMenuAnchorEl(event.currentTarget);
@@ -163,7 +164,6 @@ const handleTextFrequencyMenuClose = () => {
   };
    const handleTextStatsMenuClick = (event) => {
     setTextStatsMenuAnchorEl(event.currentTarget);
-    calculateReadability();
   };
    const handleTextStatsMenuClose = (event) => {
     setTextStatsMenuAnchorEl(null);
