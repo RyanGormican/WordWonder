@@ -13,6 +13,7 @@ import SearchAndReplace from './SearchAndReplace';
 import DocumentLayout from './DocumentLayout';
 import VoiceInput from './VoiceInput';
 import TextToSpeech from './TextToSpeech';
+import Settings from './Settings';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -58,6 +59,7 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
+      <Settings darkMode={darkMode}/>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
       <DocumentLayout  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
