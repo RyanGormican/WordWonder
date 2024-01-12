@@ -4,7 +4,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import Button from '@mui/material/Button';
 
-const VoiceInput = ({ editorState, handleEditorStateChange}) => {
+const VoiceInput = ({darkMode, editorState, handleEditorStateChange}) => {
 const [isListening, setIsListening] = useState(false); 
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     let recognitionIsRunning = false;
@@ -44,7 +44,7 @@ const handleVoiceButtonClick = () => {
   };
 return (
     <div>
-<Button style={{color: isListening? 'red':'white'}} onClick={handleVoiceButtonClick}>
+<Button style={{color: isListening? 'red': (darkMode? 'white': 'black')}} onClick={handleVoiceButtonClick}>
       <Icon icon="mdi:microphone" height="30"/>
       </Button>
       </div>

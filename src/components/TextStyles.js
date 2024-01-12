@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
-const TextStyles = ({editorState, handleEditorStateChange}) => {
+const TextStyles = ({darkMode, editorState, handleEditorStateChange}) => {
   const [fontSize, setFontSize] = useState(14);
    const [textColor, setTextColor] = useState('black');
   const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
@@ -49,7 +49,7 @@ const changeFontSize = (newFontSize) => {
 
 return (
 <div>
-  <Button onClick={handleTextStylesClick}  style ={{color:'white'}}>Text Styles</Button>
+  <Button onClick={handleTextStylesClick}  style ={{color: darkMode? 'white': 'black'}}>Text Styles</Button>
         <Menu
           anchorEl={textStylesAnchorEl}
           open={Boolean(textStylesAnchorEl)}

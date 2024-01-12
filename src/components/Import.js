@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react';
 import { getDocument } from 'pdfjs-dist';
 import { EditorState, ContentState } from 'draft-js';
 
-const Import = ({ editorState, handleEditorStateChange, onDocumentNameChange }) => {
+const Import = ({ darkMode, editorState, handleEditorStateChange, onDocumentNameChange }) => {
  
  const loadTxt = async (file) => {
     const reader = new FileReader();
@@ -84,7 +84,7 @@ const Import = ({ editorState, handleEditorStateChange, onDocumentNameChange }) 
     <div>
       <input type="file" onChange={importDocument} style={{ display: 'none' }} id="fileInput" accept=".txt" />
       <label htmlFor="fileInput">
-        <Button component="span" style={{ color: 'white' }}>
+        <Button component="span" style={{ color:darkMode? 'white': 'black' }}>
           <Icon icon="mdi:import" height="30" />
         </Button>
       </label>

@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import { AtomicBlockUtils, Entity, EditorState,  Modifier, } from 'draft-js';
 
-const Insert = ({ editorState, handleEditorStateChange }) => {
+const Insert = ({ darkMode, editorState, handleEditorStateChange }) => {
   const [insertCommandAnchorE1, setInsertCommandAnchorEl] = useState(null);
   const [dateTimeCommandAnchorE1, setDateTimeCommandAnchorE1] = useState(null);
   const [rowCount, setRowCount] = useState(1);
@@ -119,7 +119,7 @@ const Insert = ({ editorState, handleEditorStateChange }) => {
 
   return (
     <div>
-      <Button onClick={handleInsertCommandClick} style={{ color: 'white' }}>
+      <Button onClick={handleInsertCommandClick} style={{ color: darkMode? 'white': 'black' }}>
         Insert
       </Button>
       <Menu

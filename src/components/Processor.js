@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
 import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables */
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
-const Processor = () => {
+const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
   const dispatch = useDispatch();
@@ -57,38 +57,48 @@ const handleRedo = () => {
   };
   return (
     <div>
-      <span className="activity">
+      <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
-      <DocumentLayout editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
+      <DocumentLayout  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
-      <Import editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
+      <Import  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
        {/*Download/Export PDFs, HTMLs, Markdowns and TXTs*/}
-        <Export editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
+        <Export  darkMode={darkMode} editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
        {/*Insert Images & Date/Time*/}
-       <Insert editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
+       <Insert  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough, Make Selection Uppercase,  Clear Formatting
        Bullet List, Numbered List, Code Blocks, Quote Blocks
        H1 H2 H3 H4 H5 H6
        Paragraph
        */}
-       <TextCommands editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
+       <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
 
-       <TextStyles editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
+       <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
          {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
-      <DocumentInfo  ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
+      <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
-        <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? 'white' : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
+        <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? (darkMode? 'white': 'black') : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
        <Icon icon= "material-symbols:undo" height="30" />
         </Button>
-        <Button onClick={handleRedo}style={{ color: redoStack.length > 0 ? 'white' : 'grey', pointerEvents: redoStack.length > 0 ? 'auto' : 'none' }}>
+        <Button onClick={handleRedo}style={{ color: redoStack.length > 0 ? (darkMode? 'white': 'black') : 'grey', pointerEvents: redoStack.length > 0 ? 'auto' : 'none' }}>
         <Icon icon ="material-symbols:redo" height="30"/>
         </Button>
     {/*Search and find # of occurance of a given text, Transition to the position of that given item*/}
-    <SearchAndReplace editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
+    <SearchAndReplace  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
     {/*Simple voice to text translation*/}
-    <VoiceInput editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
+    <VoiceInput darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
     {/*Simple text to speech */}
-    <TextToSpeech editorState={editorState}/>
+    <TextToSpeech darkMode={darkMode} editorState={editorState}/>
+    {darkMode === true ? (
+    <div>
+    <Icon icon="ph:moon" onClick={toggleDarkMode}/>
+    </div>
+    ):(
+    <div>
+    <Icon icon="ph:sun" onClick={toggleDarkMode}/>
+    </div>
+    )
+    }
     </span>
 
       <div 
@@ -97,6 +107,7 @@ const handleRedo = () => {
       onDragLeave={(e) =>handleDragLeave(e)}
       onDragOver={(e) =>handleDragOver(e)}
       onDrop={(e) =>handleDrop(e,{editorState, handleEditorStateChange})}
+     style={{ border: darkMode ? 'none' : '1px solid black' }}
       >
         <Editor
           toolbarHidden

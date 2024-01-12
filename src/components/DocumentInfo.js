@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateToMarkdown } from 'draft-js-export-markdown';
-const DocumentInfo = ({ documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
+const DocumentInfo = ({ darkMode, documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
   const [totalSyllables, setTotalSyllables] = useState(0);
 
@@ -309,7 +309,7 @@ const getReadabilityLevel = (score) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  'white' }}>Document Information</Button>
+	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') }}>Document Information</Button>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}

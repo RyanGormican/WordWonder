@@ -4,7 +4,7 @@ import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import {EditorState, RichUtils,Modifier,ContentBlock } from 'draft-js';
-const TextCommands = ({editorState, handleEditorStateChange}) => {
+const TextCommands = ({darkMode, editorState, handleEditorStateChange}) => {
 const [textFormattingMenuAnchorEl, setTextFormattingMenuAnchorEl] = useState(null);
 const [textCommandAnchorEl, setTextCommandAnchorEl] = useState(null);
 const [textBlockingMenuAnchorEl, setTextBlockingMenuAnchorEl] = useState(null);
@@ -139,7 +139,7 @@ const convertToUppercase = () => {
 
 return (
 <div>
-       <Button onClick={handleTextCommandClick}  style ={{color:'white'}}>Text Commands</Button>
+       <Button onClick={handleTextCommandClick}  style ={{color:darkMode? 'white': 'black'}}>Text Commands</Button>
 <Menu
   anchorEl={textCommandAnchorEl}
   open={Boolean(textCommandAnchorEl)}

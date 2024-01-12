@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import { EditorState, SelectionState } from 'draft-js';
 
-const DocumentLayout = ({ editorState, handleEditorStateChange}) => {
+const DocumentLayout = ({ darkMode, editorState, handleEditorStateChange}) => {
   const [documentLayoutEl, setDocumentLayoutEl] = useState(null);
 
   const handleDocumentLayoutClose = () => {
@@ -65,7 +65,7 @@ const jumpToSection = (editorState, blockKey) => {
   return (
     <div>
       <Button style={{ color: 'white' }} onClick={handleDocumentLayoutClick}>
-        <Icon icon="iconoir:page" height="30" />
+        <Icon icon="iconoir:page" height="30" color={darkMode? 'white': 'black'}/>
       </Button>
       <Menu anchorEl={documentLayoutEl} open={Boolean(documentLayoutEl)} onClose={handleDocumentLayoutClose}>
         <MenuItem>

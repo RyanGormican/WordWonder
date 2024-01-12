@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import { EditorState, SelectionState, Modifier } from 'draft-js';
 
-const SearchAndReplace = ({ editorState, handleEditorStateChange }) => {
+const SearchAndReplace = ({darkMode, editorState, handleEditorStateChange }) => {
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [search, setSearch] = useState('');
   const [replace, setReplace] = useState('');
@@ -211,7 +211,7 @@ const replaceAll = () => {
 
   return (
     <div>
-      <Button style={{ color: 'white' }} onClick={handleSearchClick}>
+      <Button style={{ color: darkMode? 'white': 'black'}} onClick={handleSearchClick}>
         <Icon icon="ph:list-magnifying-glass" height="30" />
       </Button>
       <Menu

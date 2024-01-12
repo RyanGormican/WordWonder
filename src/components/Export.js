@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react';
 import { stateToHTML } from 'draft-js-export-html';
 import html2pdf from 'html2pdf.js';
 import { stateToMarkdown } from 'draft-js-export-markdown';
-const Export = ({ editorState, documentName, exportFormat }) => {
+const Export = ({darkMode, editorState, documentName, exportFormat }) => {
   const downloadDocument = () => {
     const contentState = editorState.getCurrentContent();
     const htmlContent = stateToHTML(contentState, {
@@ -58,7 +58,7 @@ const Export = ({ editorState, documentName, exportFormat }) => {
 
   return (
     <div>
-      <Button onClick={downloadDocument} style={{ color: 'white' }}>
+      <Button onClick={downloadDocument} style={{ color: darkMode? 'white': 'black' }}>
         <Icon icon="material-symbols:download" height="30" />
       </Button>
     </div>
