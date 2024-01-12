@@ -93,8 +93,8 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
               value={font}
               onChange={(e) => handleSetFont(e.target.value)}
             >
-              {Object.keys(styleMap).map((font) => (
-                <MenuItem key={font} value={font}style={{ fontFamily: styleMap[font].fontFamily }}>
+              {Object.keys(styleMap.fonts).map((font) => (
+                <MenuItem key={font} value={font}style={{ fontFamily: styleMap.fonts[font].fontFamily }}>
                   {font}
                 </MenuItem>
               ))}
