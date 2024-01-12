@@ -87,14 +87,16 @@ const countSelected = () => {
   setSelectedWords(selectedWordCount);
   setSelectedCharacters(selectedCharacterCount);
   };
-  const syllableCount = (word) => {
- 
+const syllableCount = (word) => {
   word = word.toLowerCase().replace(/[^a-z]/g, '');
+
   if (word.length <= 3) {
-    return 1; 
+    return 1;
   }
-  const vowels = word.replace(/[^aeiouy]/g, '');
-  return vowels.length;
+
+  const vowelGroups = word.match(/[aeiouy]{1,2}/g);
+  
+  return vowelGroups ? vowelGroups.length : 1;
 };
    const calculateTotalSyllables = () => {
     const contentState = editorState.getCurrentContent();
@@ -105,12 +107,9 @@ const countSelected = () => {
   };
 const calculateReadability = () => {
   calculateTotalSyllables();
-  console.log(totalSyllables); 
-  console.log(words);
-  console.log(sentences);
   const fleschReadingScore =
     words === 0 || sentences === 0
-      ? 0
+      ? -1
       : 206.835 - 1.015 * (words / sentences) - 84.6 * (totalSyllables / words);
 
   setFleschReadingScore(fleschReadingScore.toFixed(2));
@@ -379,13 +378,23 @@ return (
     horizontal: 'left',
   }}
          >
-         <MenuItem>
-        Flesch Reading Ease: {fleschReadingScore}
-          {fleschReadingScore > 0 && (
+         <MenuItem style = {{ backgroundColor: 'grey'}}>
+        Flesch Reading Ease: 
+          {fleschReadingScore > -1 ? (
+          <div>
+          {fleschReadingScore}
     <span style={{ marginLeft: '10px', color: getReadabilityColor(fleschReadingScore) }}>
       ({getReadabilityLevel(fleschReadingScore)})
     </span>
+    </div>
+  ) : ( 
+  <div>
+    Start writing to calculate the document's score!
+  </div>
   )}
+         </MenuItem>
+         <MenuItem>
+         Syllables:  {totalSyllables}
          </MenuItem>
           <MenuItem>
         {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
