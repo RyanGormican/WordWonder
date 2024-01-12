@@ -34,6 +34,8 @@ const [words, setWords] = useState(0);
     const [paused, setPaused]= useState(false);
     const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
     const [fleschReadingScore, setFleschReadingScore ] = useState(0);
+    const [textFrequencyMenuAnchorEl, setTextFrequencyMenuAnchorE1] = useState(null);
+    const [wordDensity, setWordDensity]= useState([]);
 const handleDocumentNameChange = (e) => {
     onDocumentNameChange(e.target.value);
   };
@@ -50,6 +52,28 @@ const handleDocumentNameChange = (e) => {
   useEffect(() => {
     setSessionDuration(totalElapsedSeconds);
   }, [totalElapsedSeconds]);
+
+  function generateDensity(editorState) {
+  const contentState = editorState.getCurrentContent();
+  const plainText = contentState.getPlainText('');
+  const words = plainText.match(/\b\w+\b/g); 
+
+  if (!words) {
+    return [];
+  }
+
+  const wordCountMap = words.reduce((countMap, word) => {
+    const lowercaseWord = word.toLowerCase();
+    countMap[lowercaseWord] = (countMap[lowercaseWord] || 0) + 1;
+    return countMap;
+  }, {});
+
+  const sortedWordCount = Object.entries(wordCountMap)
+    .sort((a, b) => b[1] - a[1]) 
+    .map(([word, count]) => ({ word, count }));
+
+  return sortedWordCount;
+}
 
   const handleExportFormatChange = (event) => {
     onExportFormatChange(event.target.value);
@@ -114,15 +138,22 @@ const calculateReadability = () => {
 
   setFleschReadingScore(fleschReadingScore.toFixed(2));
 };
-
+const handleTextFrequencyMenuClick = (event) => {
+    setTextFrequencyMenuAnchorE1(event.currentTarget);
+};
+const handleTextFrequencyMenuClose = () => {
+    setTextFrequencyMenuAnchorE1(null);
+}
    const handleDocumentInformationClose = () => {
     setDocumentInformationAnchorE1(null);
     setTextLimitstMenuAnchorEl(null);
     setTextStatsMenuAnchorEl(null);
+    setTextFrequencyMenuAnchorE1(null);
   };
    const handleDocumentInformationClick = (event) => {
     setDocumentInformationAnchorE1(event.currentTarget);
     getDocumentSize();
+    setWordDensity(generateDensity(editorState));
   };
     const handleTextLimitsMenuClick = (event) => {
     setTextLimitstMenuAnchorEl(event.currentTarget);
@@ -364,6 +395,10 @@ return (
         Text Indicators <Icon icon="zondicons:exclamation-outline" />   
         <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
         </MenuItem>
+        <MenuItem  onClick={(event) => handleTextFrequencyMenuClick(event)}>
+        Word Frequency <Icon icon="mdi:text-box-outline" />   
+        <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle', }}/>
+        </MenuItem>
          </Menu>
          <Menu
           anchorEl={textStatsMenuAnchorEl}
@@ -463,6 +498,25 @@ return (
             onChange={(e) => setMaxCharacterCount(e.target.value)}
           />
         </MenuItem>
+</Menu>
+ <Menu
+  anchorEl={textFrequencyMenuAnchorEl}
+  open={Boolean(textFrequencyMenuAnchorEl)}
+  onClose={handleTextFrequencyMenuClose}
+ anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'left',
+  }}
+>
+ {wordDensity.map((wordInfo, index) => (
+        <MenuItem key={index}>
+          {`${wordInfo.word} - ${wordInfo.count}`}
+        </MenuItem>
+      ))}
 </Menu>
 	</div>
 );
