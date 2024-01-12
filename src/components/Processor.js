@@ -21,6 +21,7 @@ import {blockRenderer} from './BlockRender'; /* Handles basic display of images 
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();
+     const [settings, setSettings] = useState({ voice: null, speed: 1.0 });
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
@@ -31,7 +32,9 @@ const [redoStack, setRedoStack] = useState([]);
   const handleDocumentNameChange = (newDocumentName) => {
     setDocumentName(newDocumentName);
   };
-
+    const handleSettingsChange = (newSettings) => {
+    setSettings(newSettings);
+  };
 const handleUndo = () => {
   if (undoStack.length > 0) {
     const prevState = undoStack.pop();
@@ -59,7 +62,8 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
-      <Settings darkMode={darkMode}/>
+      {/*Change Text to Speech Voice and Speed */}
+      <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
       <DocumentLayout  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
@@ -90,7 +94,7 @@ const handleRedo = () => {
     {/*Simple voice to text translation*/}
     <VoiceInput darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
     {/*Simple text to speech */}
-    <TextToSpeech darkMode={darkMode} editorState={editorState}/>
+    <TextToSpeech settings={settings} darkMode={darkMode} editorState={editorState}/>
     {darkMode? <Icon icon="ph:moon" onClick={toggleDarkMode}/>:<Icon icon="ph:sun" onClick={toggleDarkMode}/>}
     </span>
 
