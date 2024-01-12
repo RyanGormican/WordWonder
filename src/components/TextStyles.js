@@ -47,7 +47,7 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
  setFont(fontFamily);
     const selection = editorState.getSelection();
 
-    const nextContentState = Object.keys(styleMap).reduce((contentState, font) => {
+    const nextContentState = Object.keys(styleMap.fonts).reduce((contentState, font) => {
       return Modifier.removeInlineStyle(contentState, selection, font);
     }, editorState.getCurrentContent());
 
@@ -110,6 +110,7 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
 export default TextStyles;
 
 export const styleMap = {
+fonts: {
   'Arial': {
     fontFamily: 'Arial',
   },
@@ -146,13 +147,17 @@ export const styleMap = {
   'Palatino Linotype': {
     fontFamily: 'Palatino Linotype',
   },
-  'Trebuchet MS': {
-    fontFamily: 'Trebuchet MS',
-  },
   'Times New Roman': {
     fontFamily: 'Times New Roman',
+  },
+  'Trebuchet MS': {
+    fontFamily: 'Trebuchet MS',
   },
   'Verdana': {
     fontFamily: 'Verdana',
   },
+  },
+  colors :{ 
+    ...colorStyles,
+  }
 };
