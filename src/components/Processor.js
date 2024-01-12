@@ -21,7 +21,7 @@ import {blockRenderer} from './BlockRender'; /* Handles basic display of images 
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();
-     const [settings, setSettings] = useState({ voice: null, speed: 1.0 });
+     const [settings, setSettings] = useState({ voice: null,pitch: 1.0, speed: 1.0 });
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
@@ -62,7 +62,7 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
-      {/*Change Text to Speech Voice and Speed */}
+      {/*Change Text to Speech Voice, Pitch, and Speed */}
       <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
       <DocumentLayout  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>

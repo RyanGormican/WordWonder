@@ -36,6 +36,10 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
     handleSettingsChange({ ...settings, speed: newSpeed });
   };
 
+    const handlePitchange = (newPitch) => {
+    handleSettingsChange({ ...settings, pitch: newPitch });
+  };
+
   return (
     <div>
       <Button onClick={handleSettingsCommandClick} style={{ color: 'white' }}>
@@ -90,6 +94,18 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
             onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
           />
           {settings.speed}
+        </MenuItem>
+        <MenuItem>
+          <span>Pitch:</span>
+          <input
+            type="range"
+            min="0"
+            max="2"
+            step="0.1"
+            value={settings.pich}
+            onChange={(e) => handlePitchange(parseFloat(e.target.value))}
+          />
+          {settings.pitch}
         </MenuItem>
       </Menu>
     </div>
