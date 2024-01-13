@@ -69,7 +69,7 @@ const handleRedo = () => {
       {/*Import TXTs */}
       <Import  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
        {/*Download/Export PDFs, HTMLs, Markdowns and TXTs*/}
-        <Export  darkMode={darkMode} editorState={editorState} documentName={documentName} exportFormat={exportFormat}/>
+        <Export  darkMode={darkMode} editorState={editorState} documentName={documentName} exportFormat={exportFormat} styleMap={styleMap}/>
        {/*Insert Images & Date/Time*/}
        <Insert  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough, Make Selection Uppercase,  Clear Formatting
@@ -78,7 +78,7 @@ const handleRedo = () => {
        Paragraph
        */}
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-       {/*Change Font Family from 15 fonts */}
+       {/*Change Font Family from 15 fonts, Change color from 7 colors, Change font size from 1px to 92px */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
          {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Listings, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
