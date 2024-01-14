@@ -29,6 +29,8 @@ const downloadDocument = () => {
             inlineStyleHtml += `color: ${styleMap[style].color};`;
           } else if (styleMap[style].id === 'fontSize') {
             inlineStyleHtml += `font-size: ${styleMap[style].fontSize};`;
+          } else if (styleMap[style].id === 'colorbackground') {
+            inlineStyleHtml += `background-color: ${styleMap[style].backgroundColor};`;
           } 
           }
           if (style === 'BOLD') {

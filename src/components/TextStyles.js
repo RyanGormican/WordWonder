@@ -9,97 +9,35 @@ import { RichUtils, EditorState, Modifier } from 'draft-js';
 const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
   const [fontSize, setFontSize] = useState(14);
   const [textColor, setTextColor] = useState('Black');
+  const [backgroundColor, setBackgroundColor] = useState('Clear');
   const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
   const [font, setFont] = useState('Arial')
   const handleTextStylesClose = () => {
     setTextStylesAnchorEl(null);
   };
 
-  const handleFontSize = (newFontSize) => {
-        setFontSize(newFontSize);
-      changeFontSize(newFontSize);
-  };
-
-  const changeFontSize = (newFontSize) => {
-  setFontSize(newFontSize);
-   const selection = editorState.getSelection();
-  const nextContentState = Object.keys(styleMap).reduce((contentState, styleKey) => {
-    const style = styleMap[styleKey];
-    
-    if (style.id === 'fontsize') {
-      contentState = Modifier.removeInlineStyle(contentState, selection, styleKey);
-    }
-
-    return contentState;
-  }, editorState.getCurrentContent());
-
-  let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
-  const currentStyle = editorState.getCurrentInlineStyle();
-
-  if (!currentStyle.has(newFontSize)) {
-    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, newFontSize);
-  }
-
-  handleEditorStateChange(nextEditorState);
-  };
-
   const handleTextStylesClick = (event) => {
     setTextStylesAnchorEl(event.currentTarget);
   };
 
-const handleColor = (selectedColor) => {
-  setTextColor(selectedColor);
-  const selection = editorState.getSelection();
-  const nextContentState = Object.keys(styleMap).reduce((contentState, styleKey) => {
-    const style = styleMap[styleKey];
-    
-    if (style.id === 'color') {
-      contentState = Modifier.removeInlineStyle(contentState, selection, styleKey);
-    }
-
-    return contentState;
-  }, editorState.getCurrentContent());
-
-  let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
-  const currentStyle = editorState.getCurrentInlineStyle();
-
-  if (!currentStyle.has(selectedColor)) {
-    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, selectedColor);
-  }
-
-  handleEditorStateChange(nextEditorState);
- 
+const handleFontSize = (newFontSize) => {
+  setFontSize(newFontSize);
+  handleInlineStyleChange(editorState, handleEditorStateChange,'fontsize', newFontSize);
 };
 
-
-
+const handleColor = (selectedColor) => {
+  setTextColor(selectedColor);
+  handleInlineStyleChange(editorState, handleEditorStateChange,'color', selectedColor);
+};
 
 const handleSetFont = (fontFamily) => {
   setFont(fontFamily);
-
-  const selection = editorState.getSelection();
-  const nextContentState = Object.keys(styleMap).reduce((contentState, styleKey) => {
-    const style = styleMap[styleKey];
-    
-    if (style.id === 'font') {
-      console.log(`Removing inline style for font: ${styleKey}`);
-      contentState = Modifier.removeInlineStyle(contentState, selection, styleKey);
-    }
-
-    return contentState;
-  }, editorState.getCurrentContent());
-
-  let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
-  const currentStyle = editorState.getCurrentInlineStyle();
-
-  if (!currentStyle.has(fontFamily)) {
-    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, fontFamily);
-  }
-
-  handleEditorStateChange(nextEditorState);
+  handleInlineStyleChange(editorState, handleEditorStateChange,'font', fontFamily);
 };
-
-
+const handleBackgroundColor = (backgroundColor) =>{
+ setBackgroundColor(backgroundColor);
+ handleInlineStyleChange(editorState, handleEditorStateChange,'colorbackground',backgroundColor)
+};
 
   return (
     <div>
@@ -115,18 +53,38 @@ const handleSetFont = (fontFamily) => {
         <MenuItem>
           Text Color
           <FormControl>
+      <Select
+  labelId="color-label"
+  id="color-select"
+  value={textColor}
+  onChange={(e) => handleColor(e.target.value)}
+>
+  {Object.keys(styleMap)
+    .filter((color) => styleMap[color].id === 'color' && color.endsWith('Text'))
+    .map((color) => (
+      <MenuItem key={color} value={color} style={{ color: styleMap[color].color }}>
+        {color.replace(' Text', '')}
+      </MenuItem>
+    ))}
+</Select>
+          </FormControl>
+          <input type="color" style={{display: 'none'}} value={textColor} onChange={(e) => handleColor(e.target.value)} />
+        </MenuItem>
+        <MenuItem>
+          Background Color
+          <FormControl>
             <Select
-              labelId="color-label"
-              id="color-select"
-              value={textColor}
+              labelId="colorBackground-label"
+              id="colorBackground-select"
+              value={backgroundColor}
 
-              onChange={(e) => handleColor(e.target.value)}
+              onChange={(e) => handleBackgroundColor(e.target.value)}
             >
               {Object.keys(styleMap)
-                .filter((color) => styleMap[color].id === 'color')
-              .map((color) => (
-                <MenuItem key={color} value={color}style={{ color: styleMap[color].color }}>
-                  {color}
+                .filter((colorB) => styleMap[colorB].id === 'colorbackground')
+              .map((colorB) => (
+                <MenuItem key={colorB} value={colorB}style={{ backgroundColor: styleMap[colorB].backgroundColor }}>
+                  {colorB}
                 </MenuItem>
               ))}
             </Select>
@@ -160,6 +118,29 @@ const handleSetFont = (fontFamily) => {
 };
 
 export default TextStyles;
+export const handleInlineStyleChange = (editorState, handleEditorStateChange, styleId, newValue) => {
+  const selection = editorState.getSelection();
+  const nextContentState = Object.keys(styleMap).reduce((contentState, styleKey) => {
+    const style = styleMap[styleKey];
+
+    if (style.id === styleId) {
+      contentState = Modifier.removeInlineStyle(contentState, selection, styleKey);
+    }
+
+    return contentState;
+  }, editorState.getCurrentContent());
+
+  let nextEditorState = EditorState.push(editorState, nextContentState, 'change-inline-style');
+  const currentStyle = editorState.getCurrentInlineStyle();
+
+   if (styleId === 'colorbackground' && newValue === 'Clear') {
+    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, 'bgcolor-clear');
+  }else if (!currentStyle.has(newValue)) {
+    nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, newValue);
+  }
+
+  handleEditorStateChange(nextEditorState);
+}; 
 const createFontStyle = (fontFamily) => ({
   [fontFamily]: {
     fontFamily:`${fontFamily} `,
@@ -173,33 +154,65 @@ const fonts = ['Arial', 'Arial Black', 'Book Antiqua','Cabin', 'Comic Sans MS', 
 const fontStyles = Object.assign({}, ...fonts.map(createFontStyle));
 export const styleMap = {
 ...fontStyles,
-   'Red' : {
+   'Red Text' : {
    color: '#FF0000',
    id:'color',
    },
-   'Orange':{
+   'Orange Text':{
     color: '#FFA500',
      id:'color',
    },
-   'Yellow':{
+   'Yellow  Text':{
    color: '#ffff00',
     id:'color',
    },
-   'Green':{
+   'Green Text':{
    color: '#00FF00',
     id:'color',
    },
-   'Blue':{
+   'Blue  Text':{
    color: '#0000FF',
     id:'color',
    },
-   'Purple':{
+   'Purple  Text':{
    color: '#A020F0',
     id:'color',
    },
-   'Black':{
+   'Black  Text':{
    color: '#000000',
     id:'color',
+   },
+     'Red' : {
+   backgroundColor: '#FF0000',
+   id:'colorbackground',
+   },
+   'Orange':{
+    backgroundColor: '#FFA500',
+     id:'colorbackground',
+   },
+   'Yellow':{
+   backgroundColor: '#ffff00',
+    id:'colorbackground',
+   },
+   'Green':{
+   backgroundColor: '#00FF00',
+    id:'colorbackground',
+   },
+   'Blue':{
+   backgroundColor: '#0000FF',
+    id:'colorbackground',
+   },
+   'Purple':{
+   backgroundColor: '#A020F0',
+    id:'colorbackground',
+   },
+   'Black':{
+   backgroundColor: '#000000',
+    id:'colorbackground',
+   },
+   'Clear':{
+    backgroundColor:'null',
+    id:'colorbackground',
    },
   ...Array.from({ length: 92 }, (_, index) => ({
     fontSize: `${index + 1}px`,

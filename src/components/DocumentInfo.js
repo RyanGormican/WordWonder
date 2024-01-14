@@ -362,9 +362,6 @@ return (
              />
         </MenuItem>
         <MenuItem>
-        Document Size <Icon icon="material-symbols:save" /> {documentSize} 
-        </MenuItem>
-        <MenuItem>
         Document Type <select
         id="exportFormat"
         value={exportFormat}
@@ -376,6 +373,9 @@ return (
         <option value="html">HTML</option>
         <option value="markdown">MARKDOWN</option>
       </select>
+        </MenuItem>
+        <MenuItem>
+        Raw Document Size <Icon icon="material-symbols:save" /> {documentSize} 
         </MenuItem>
         <MenuItem>
         Session Duration <Icon icon="mdi:clock" /> {formatDuration(sessionDuration)} 
