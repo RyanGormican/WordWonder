@@ -78,7 +78,7 @@ const handleRedo = () => {
        Paragraph
        */}
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-       {/*Change Font Family from 15 fonts, Change text and background color from 7 colors, Change font size from 1px to 92px */}
+       {/*Change Font Family from 34 fonts, Change text and background color from 7 colors, Change font size from 1px to 92px */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
          {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Listings, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />

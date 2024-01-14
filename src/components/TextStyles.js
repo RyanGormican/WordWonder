@@ -5,10 +5,10 @@ import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import { RichUtils, EditorState, Modifier } from 'draft-js';
-
+import {fonts} from './Fonts';
 const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
   const [fontSize, setFontSize] = useState(14);
-  const [textColor, setTextColor] = useState('Black');
+  const [textColor, setTextColor] = useState(`Black  Text`);
   const [backgroundColor, setBackgroundColor] = useState('Clear');
   const [textStylesAnchorEl, setTextStylesAnchorEl] = useState(null);
   const [font, setFont] = useState('Arial')
@@ -22,7 +22,7 @@ const TextStyles = ({ darkMode, editorState, handleEditorStateChange }) => {
 
 const handleFontSize = (newFontSize) => {
   setFontSize(newFontSize);
-  handleInlineStyleChange(editorState, handleEditorStateChange,'fontsize', newFontSize);
+  handleInlineStyleChange(editorState, handleEditorStateChange,'fontsize', newFontSize*10.0);
 };
 
 const handleColor = (selectedColor) => {
@@ -47,8 +47,8 @@ const handleBackgroundColor = (backgroundColor) =>{
       <Menu anchorEl={textStylesAnchorEl} open={Boolean(textStylesAnchorEl)} onClose={handleTextStylesClose}>
         <MenuItem>
           Font Size
-           <input type="range" min="1" max="92" step="1" value={fontSize} onChange={(e)=> handleFontSize(e.target.value)}/>
-          <input type="number" min="1" max="92" step="1" value={fontSize} onChange={(e)=> handleFontSize(e.target.value)}  onBlur={(e) => handleFontSize(e.target.value)}/>
+           <input type="range" min="1" max="92" step="0.1" value={fontSize} onChange={(e)=> handleFontSize(e.target.value)}/>
+          <input type="number" min="1" max="92" step="0.1" value={fontSize} onChange={(e)=> handleFontSize(e.target.value)}  onBlur={(e) => handleFontSize(e.target.value)}/>
         </MenuItem>
         <MenuItem>
           Text Color
@@ -83,7 +83,7 @@ const handleBackgroundColor = (backgroundColor) =>{
               {Object.keys(styleMap)
                 .filter((colorB) => styleMap[colorB].id === 'colorbackground')
               .map((colorB) => (
-                <MenuItem key={colorB} value={colorB}style={{ backgroundColor: styleMap[colorB].backgroundColor }}>
+                <MenuItem key={colorB} value={colorB}style={{ backgroundColor: styleMap[colorB].backgroundColor, color: 'white' }}>
                   {colorB}
                 </MenuItem>
               ))}
@@ -148,8 +148,6 @@ const createFontStyle = (fontFamily) => ({
   },
 });
 
-const fonts = ['Arial', 'Arial Black', 'Book Antiqua','Cabin', 'Comic Sans MS', 'Courier', 'Garamond', 'Georgia','Helvetica', 'Impact','Lato','Lucida Console',  'Lucida Sans Unicode','Montserrat', 'Noto Sans', 'Open Sans',
-  'Palatino Linotype','Raleway', 'Roboto','Source Sans Pro', 'Times New Roman','Trebuchet MS','Verdana'];
 
 const fontStyles = Object.assign({}, ...fonts.map(createFontStyle));
 export const styleMap = {
@@ -214,8 +212,8 @@ export const styleMap = {
     backgroundColor:'null',
     id:'colorbackground',
    },
-  ...Array.from({ length: 92 }, (_, index) => ({
-    fontSize: `${index + 1}px`,
+...Array.from({ length: 920 }, (_, index) => ({
+    fontSize: `${(index + 1) / 10}px`,
     id: 'fontSize',
   })),
 };
