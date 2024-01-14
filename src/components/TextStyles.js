@@ -103,6 +103,7 @@ const handleBackgroundColor = (backgroundColor) =>{
             >
             {Object.keys(styleMap)
   .filter((font) => styleMap[font].id === 'font')
+  .sort()
   .map((font) => (
     <MenuItem key={font} value={font} style={{ fontFamily: styleMap[font].fontFamily }}>
       {font}
