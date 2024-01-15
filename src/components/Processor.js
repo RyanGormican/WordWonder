@@ -1,5 +1,5 @@
-import React, { useState,useRef } from 'react';
-import {Editor} from 'draft-js';
+import React, { useState,useRef, useEffect } from 'react';
+import {Editor } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import Button from '@mui/material/Button';
@@ -59,6 +59,26 @@ const handleRedo = () => {
     documentInfoRef.current.countSelected();
     documentInfoRef.current.countDocumentStatistics();
   };
+    
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z') {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key === 'y') {
+          e.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
@@ -114,7 +134,7 @@ const handleRedo = () => {
           wrapperClassName="processor-wrapper"
           editorClassName="processor-editor"
           spellCheck={true}
-           blockRendererFn={blockRenderer}
+          blockRendererFn={blockRenderer}
         />
       </div>
     </div>
