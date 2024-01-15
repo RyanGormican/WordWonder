@@ -17,7 +17,7 @@ import Settings from './Settings';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
-import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables */
+import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables. Basic image resizing*/
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();

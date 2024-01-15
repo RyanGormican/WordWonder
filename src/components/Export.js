@@ -3,7 +3,8 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToMarkdown } from 'draft-js-export-markdown';
-
+import { convertToRaw } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
 const Export = ({ darkMode, editorState, documentName, styleMap, exportFormat }) => {
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();
@@ -61,6 +62,20 @@ const downloadDocument = () => {
       }
     }
     htmlContent += '<br>';
+  });
+  contentState.getBlockMap().forEach((block) => {
+    block.findEntityRanges(
+      (character) => {
+        const entityKey = character.getEntity();
+        return entityKey !== null && contentState.getEntity(entityKey).getType() === 'image';
+      },
+      (start, end) => {
+        const entityKey = block.getEntityAt(start);
+        const entity = contentState.getEntity(entityKey);
+        const { src, alt, width, height } = entity.getData();
+        htmlContent += `<img src="${src}" alt="${alt}" style="max-width:100%; width:${width}px; height:${height}px;" />`;
+      }
+    );
   });
 
     if (exportFormat === 'pdf') {
