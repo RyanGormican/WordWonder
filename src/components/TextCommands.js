@@ -163,7 +163,7 @@ return (
   Text Blocking  <Icon icon="mdi:text" />
    <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
 </MenuItem>
-<MenuItem style={{ display: 'block' }} onClick={(event) => handleTextAlignmentMenuClick(event)}>
+<MenuItem style={{ display: 'none' }} onClick={(event) => handleTextAlignmentMenuClick(event)}>
 Text Alignment(WIP) <Icon icon="streamline:interface-text-formatting-left-align-paragraph-text-alignment-align-left-formatting-right" />
  <Icon icon="bxs:right-arrow" style={{ marginLeft: 'auto', marginRight: '4px', verticalAlign: 'middle' }}/>
 </MenuItem>
