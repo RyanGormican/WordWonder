@@ -14,6 +14,7 @@ import DocumentLayout from './DocumentLayout';
 import VoiceInput from './VoiceInput';
 import TextToSpeech from './TextToSpeech';
 import Settings from './Settings';
+import Comments from './Comments';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -21,13 +22,14 @@ import {blockRenderer} from './BlockRender'; /* Handles basic display of images 
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();
-     const [settings, setSettings] = useState({ voice: null,pitch: 1.0, speed: 1.0 });
+     const [settings, setSettings] = useState({ voice: null,pitch: 1.0, speed: 1.0, volume: 1.0,  });
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
   const dispatch = useDispatch();
   const editorState = useSelector((state) => state.editor.editorState);
   const [exportFormat, setExportFormat] = useState('pdf');
   const [undoStack, setUndoStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
+  const [comments, setComments] = useState([]);
  const [documentName, setDocumentName] = useState('document');
   const handleDocumentNameChange = (newDocumentName) => {
     setDocumentName(newDocumentName);
@@ -82,14 +84,16 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
-      {/*Change Text to Speech Voice, Pitch, and Speed */}
+      {/*Change Text to Speech Voice, Volume, Language, Pitch, and Speed */}
       <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
+      {/*Add, Update, Delete Non-Exportable Comments from a button */}
+      <Comments comments = {comments} setComments = {setComments} darkMode={darkMode} editorState={editorState}/>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}
       <DocumentLayout  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
       {/*Import TXTs */}
       <Import  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange} documentName={documentName} onDocumentNameChange={handleDocumentNameChange}/>
        {/*Download/Export PDFs, HTMLs, Markdowns and TXTs*/}
-        <Export  darkMode={darkMode} editorState={editorState} documentName={documentName} exportFormat={exportFormat} styleMap={styleMap}/>
+        <Export  darkMode={darkMode} editorState={editorState} documentName={documentName} exportFormat={exportFormat} styleMap={styleMap} comments={comments}/>
        {/*Insert Images & Date/Time*/}
        <Insert  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/> 
        {/*Bold Italicize Underline Strikethrough, Make Selection Uppercase,  Clear Formatting
@@ -100,7 +104,7 @@ const handleRedo = () => {
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
        {/*Change Font Family from 64 fonts, Change text and background color from 7 colors, Change font size from 1px to 92px */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Listings, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
+         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Analysis, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? (darkMode? 'white': 'black') : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>

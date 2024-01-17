@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Icon } from '@iconify/react';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,8 +8,22 @@ import Button from '@mui/material/Button';
 const Settings = ({ darkMode, settings, handleSettingsChange }) => {
   const [settingsAnchorE1, setSettingsAnchorE1] = useState(null);
   const [textToSpeechCommandAnchorE1, setTextToSpeechCommandAnchorE1] = useState(null);
-  const { speechSynthesis } = window;
+  const [availableLanguages, setAvailableLanguages] = useState([]);
   const availableVoices = speechSynthesis.getVoices();
+  useEffect(() => {
+    const updateAvailableLanguages = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableLanguages([...new Set(voices.map((voice) => voice.lang))]);
+    };
+
+    window.speechSynthesis.addEventListener('voiceschanged', updateAvailableLanguages);
+
+    updateAvailableLanguages();
+
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', updateAvailableLanguages);
+    };
+  }, []);
 
   const handleSettingsCommandClick = (event) => {
     setSettingsAnchorE1(event.currentTarget);
@@ -23,7 +37,7 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
     setTextToSpeechCommandAnchorE1(null);
   };
 
-  const handleSettingsCommandClose = (event) => {
+  const handleSettingsCommandClose = () => {
     setSettingsAnchorE1(null);
     setTextToSpeechCommandAnchorE1(null);
   };
@@ -36,8 +50,16 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
     handleSettingsChange({ ...settings, speed: newSpeed });
   };
 
-    const handlePitchange = (newPitch) => {
+  const handlePitchChange = (newPitch) => {
     handleSettingsChange({ ...settings, pitch: newPitch });
+  };
+
+  const handleVolumeChange = (newVolume) => {
+    handleSettingsChange({ ...settings, volume: newVolume });
+  };
+
+  const handleLangChange = (newLang) => {
+    handleSettingsChange({ ...settings, lang: newLang });
   };
 
   return (
@@ -68,7 +90,7 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
           horizontal: 'left',
         }}
       >
-        <MenuItem>
+            <MenuItem>
           <span>Voice:</span>
           <select value={settings.voice} onChange={(e) => handleVoiceChange(e.target.value)}>
             {settings.voice && (
@@ -103,9 +125,36 @@ const Settings = ({ darkMode, settings, handleSettingsChange }) => {
             max="2"
             step="0.1"
             value={settings.pitch}
-            onChange={(e) => handlePitchange(parseFloat(e.target.value))}
+            onChange={(e) => handlePitchChange(parseFloat(e.target.value))}
           />
           {settings.pitch}
+        </MenuItem>
+        <MenuItem>
+          <span>Volume:</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={settings.volume}
+            onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+          />
+          {settings.volume}
+        </MenuItem>
+        <MenuItem>
+          <span>Language:</span>
+          <select value={settings.lang} onChange={(e) => handleLangChange(e.target.value)}>
+            {settings.lang && (
+              <option key={settings.lang} value={settings.lang}>
+                {settings.lang}
+              </option>
+            )}
+            {availableLanguages.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
         </MenuItem>
       </Menu>
     </div>

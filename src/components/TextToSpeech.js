@@ -17,6 +17,8 @@ const handleTextToSpeech = () => {
     }
     utterance.rate = settings.speed;
     utterance.pitch = settings.pitch;
+    utterance.volume= settings.volume;
+    utterance.lang = settings.lang;
     speechSynthesis.speak(utterance);
 };
 

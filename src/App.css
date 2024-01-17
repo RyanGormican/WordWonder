@@ -71,3 +71,14 @@ processor-wrapper {
 .processor-editor {
   height: 100%; 
 }
+.comment{
+max-width:40vw;
+padding:5px;
+}
+.comment input{
+max-width:40vw;
+padding:5px;
+}
+.comments{
+flex-direction:column;
+}
