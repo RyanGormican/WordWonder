@@ -9,6 +9,7 @@ const Comments = ({ darkMode, comments, setComments, editorState }) => {
   const [newComment, setNewComment] = useState('');
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const inputRef = useRef(null);
+  const [commentIndex, setCommentIndex] = useState(null);
 
   const handleCommentsClick = (event) => {
     setCommentsAnchorE1(event.currentTarget);
@@ -16,8 +17,17 @@ const Comments = ({ darkMode, comments, setComments, editorState }) => {
 
   const handleCommentsClose = () => {
     setCommentsAnchorE1(null);
+    setCommentIndex(null);
   };
-
+  const handleCommentClick = (index) => {
+     if (commentIndex != index) { 
+  setCommentIndex(index);
+  } else 
+  {
+    setCommentIndex(null);
+  }
+ 
+  };
   const handleAddComment = () => {
     if (newComment.trim() !== '') {
       const commentTimestamp = new Date().toLocaleString();
@@ -75,28 +85,33 @@ const Comments = ({ darkMode, comments, setComments, editorState }) => {
           />
           <Icon onClick={handleAddComment} icon="material-symbols:add-comment" />
         </MenuItem>
-         {comments.map((comment, index) => (
+        {comments.map((comment, index) => (
           <MenuItem
             key={index}
             onMouseEnter={() => handleCommentMouseEnter(index)}
             onMouseLeave={handleCommentMouseLeave}
             class="comment"
           >
-
-                <input
+            {commentIndex === index ? (
+              <input
                 type="text"
                 value={comment.text}
                 onChange={(e) => {
-                const updatedComments = [...comments];
-                updatedComments[index].text = e.target.value;
-                setComments(updatedComments);
-              }}
-                /> 
-              {hoveredIndex === index && <span style={{ marginLeft: '5px' }}> ( {comment.timestamp} )   <Icon onClick={() => handleDeleteComment(index)} icon="mdi:trash" />  </span>}
-       
+                  const updatedComments = [...comments];
+                  updatedComments[index].text = e.target.value;
+                  setComments(updatedComments);
+                }}
+              />
+            ) : (
+              <span>{comment.text}</span>
+            )}
+            {hoveredIndex === index && (
+              <span style={{ marginLeft: '5px' }}>
+              <Icon onClick={() => handleCommentClick(index)} icon="mdi:pencil" />   ( {comment.timestamp} ) <Icon onClick={() => handleDeleteComment(index)} icon="mdi:trash" />
+              </span>
+            )}
           </MenuItem>
         ))}
-     
       </Menu>
     </div>
   );
