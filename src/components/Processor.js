@@ -15,6 +15,7 @@ import VoiceInput from './VoiceInput';
 import TextToSpeech from './TextToSpeech';
 import Settings from './Settings';
 import Comments from './Comments';
+import History from './History';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
@@ -28,6 +29,7 @@ const Processor = ({darkMode, toggleDarkMode}) => {
   const editorState = useSelector((state) => state.editor.editorState);
   const [exportFormat, setExportFormat] = useState('pdf');
   const [undoStack, setUndoStack] = useState([]);
+  const [versionStack, setVersionStack] = useState([]);
 const [redoStack, setRedoStack] = useState([]);
   const [comments, setComments] = useState([]);
  const [documentName, setDocumentName] = useState('document');
@@ -39,11 +41,12 @@ const [redoStack, setRedoStack] = useState([]);
   };
 const handleUndo = () => {
   if (undoStack.length > 0) {
-    const prevState = undoStack.pop();
+const prevState = undoStack.pop();
     setRedoStack((prevRedoStack) => [editorState, ...prevRedoStack]);
     dispatch(updateEditorState(prevState));
   }
 };
+
 
 const handleRedo = () => {
   if (redoStack.length > 0) {
@@ -52,16 +55,20 @@ const handleRedo = () => {
     dispatch(updateEditorState(nextState));
   }
 };
-  const handleEditorStateChange = (newEditorState) => {
-  setUndoStack((prevUndoStack) => [...prevUndoStack, newEditorState]);
-  setRedoStack([]);   
+ const handleEditorStateChange = (newEditorState) => {
+
+  const timestamp = Date.now();
+    setUndoStack((prevUndoStack) => [...prevUndoStack, newEditorState]);
+  setRedoStack([]); 
+    const version = { editorState: newEditorState, timestamp };
+    setVersionStack((prevUndoStack) => [...prevUndoStack, version]);
     dispatch(updateEditorState(newEditorState));
     documentInfoRef.current.countWords();
     documentInfoRef.current.countCharacters();
     documentInfoRef.current.countSelected();
     documentInfoRef.current.countDocumentStatistics();
-  };
-    
+};
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey) {
@@ -86,6 +93,8 @@ const handleRedo = () => {
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
       {/*Change Text to Speech Voice, Volume, Language, Pitch, and Speed */}
       <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
+      {/*Maps over the stack allowing the user to click to revert to an appropriate version */}
+      <History darkMode={darkMode} versionStack={versionStack} editorState = {editorState} handleEditorStateChange = {handleEditorStateChange}/>
       {/*Add, Update, Delete Non-Exportable Comments from a button */}
       <Comments comments = {comments} setComments = {setComments} darkMode={darkMode} editorState={editorState}/>
       {/*Document Outline formed of menu items of given headings. Click to jump to respective positioning of that heading text*/}

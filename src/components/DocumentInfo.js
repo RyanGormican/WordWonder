@@ -340,7 +340,7 @@ const getReadabilityLevel = (score) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') }}>Document Information</Button>
+	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') }}> Document Information</Button>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
