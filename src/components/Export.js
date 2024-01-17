@@ -3,8 +3,6 @@ import Button from '@mui/material/Button';
 import { Icon } from '@iconify/react';
 import html2pdf from 'html2pdf.js';
 import { stateToMarkdown } from 'draft-js-export-markdown';
-import { convertToRaw } from 'draft-js';
-import draftToHtml from 'draftjs-to-html';
 const Export = ({ darkMode, editorState, documentName, styleMap, exportFormat, comments }) => {
 const downloadDocument = () => {
   const contentState = editorState.getCurrentContent();

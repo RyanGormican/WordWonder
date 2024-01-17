@@ -20,7 +20,7 @@ const Comments = ({ darkMode, comments, setComments, editorState }) => {
     setCommentIndex(null);
   };
   const handleCommentClick = (index) => {
-     if (commentIndex != index) { 
+     if (commentIndex !== index) { 
   setCommentIndex(index);
   } else 
   {
