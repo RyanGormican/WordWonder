@@ -19,7 +19,7 @@ import History from './History';
 import 'draft-js/dist/Draft.css'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
-import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables. Basic image resizing*/
+import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables. Image resizing within the editor*/
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
     const documentInfoRef = useRef();
@@ -93,7 +93,7 @@ const handleRedo = () => {
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
       {/*Change Text to Speech Voice, Volume, Language, Pitch, and Speed */}
       <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
-      {/*Maps over the stack allowing the user to click to revert to an appropriate version */}
+      {/*Version history that maps over the stack allowing the user to click to revert to an appropriate version. Compare versions before accepting changes */}
       <History darkMode={darkMode} versionStack={versionStack} editorState = {editorState} handleEditorStateChange = {handleEditorStateChange}/>
       {/*Add, Update, Delete Non-Exportable Comments from a button */}
       <Comments comments = {comments} setComments = {setComments} darkMode={darkMode} editorState={editorState}/>
@@ -113,7 +113,7 @@ const handleRedo = () => {
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
        {/*Change Font Family from 64 fonts, Change text and background color from 7 colors, Change font size from 1px to 92px */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Analysis, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication, Visual Max & Min Count Checker for Word & Character Limits/Goals*/}
+         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Analysis, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication,  Max & Min Count Checker for Word & Character Limits/Goals with visual indicators*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? (darkMode? 'white': 'black') : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
