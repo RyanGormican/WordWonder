@@ -137,7 +137,7 @@ const handleRedo = () => {
       onDragLeave={(e) =>handleDragLeave(e)}
       onDragOver={(e) =>handleDragOver(e)}
       onDrop={(e) =>handleDrop(e,{editorState, handleEditorStateChange})}
-     style={{ border: darkMode ? 'none' : '1px solid black' }}
+     style={{ border: darkMode ? 'none' : '1px solid black'}}
       >
         <Editor
           toolbarHidden

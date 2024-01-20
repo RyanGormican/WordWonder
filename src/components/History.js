@@ -64,7 +64,16 @@ const History = ({ darkMode, versionStack, editorState, handleEditorStateChange 
           ))}
       </Menu>
 
-      <Dialog open={confirmationDialogOpen} onClose={handleCancelRevert}>
+      <Dialog open={confirmationDialogOpen} onClose={handleCancelRevert} 
+ PaperProps={{
+          style: {
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 10,
+
+          },
+        }}>
         <DialogTitle>Switch to Version {selectedVersionIndex !== null ? selectedVersionIndex + 1 : ''}?</DialogTitle>
         <DialogContent>
           Are you sure you want to switch to this version?
