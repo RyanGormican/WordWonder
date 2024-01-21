@@ -22,6 +22,7 @@ import { updateEditorState } from '../actions/editorActions';
 import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables. Image resizing within the editor*/
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
 const Processor = ({darkMode, toggleDarkMode}) => {
+const [toolbarVisible, setToolbarVisible] = useState(true); 
     const documentInfoRef = useRef();
      const [settings, setSettings] = useState({ voice: null,pitch: 1.0, speed: 1.0, volume: 1.0,  });
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
@@ -63,12 +64,19 @@ const handleRedo = () => {
     const version = { editorState: newEditorState, timestamp };
     setVersionStack((prevUndoStack) => [...prevUndoStack, version]);
     dispatch(updateEditorState(newEditorState));
+    if (toolbarVisible === true)
+    {
     documentInfoRef.current.countWords();
     documentInfoRef.current.countCharacters();
     documentInfoRef.current.countSelected();
-    documentInfoRef.current.countDocumentStatistics();
+    }
 };
-
+const toggleVisible = () => {
+setToolbarVisible((prev) => !prev);
+documentInfoRef.current.countWords();
+    documentInfoRef.current.countCharacters();
+    documentInfoRef.current.countSelected();
+};
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey) {
@@ -91,6 +99,10 @@ const handleRedo = () => {
   return (
     <div>
       <span className="activity" style={{ border: darkMode ? 'none' : '1px solid black' }}>
+       <Button onClick={toggleVisible} style={{ color: darkMode ? 'white' : 'black' }}>
+          <Icon icon="ph:eye" height="30" />
+        </Button>
+          <span className="activity" style={{ display: toolbarVisible ? '' : 'none' }}>
       {/*Change Text to Speech Voice, Volume, Language, Pitch, and Speed */}
       <Settings darkMode={darkMode} settings={settings} handleSettingsChange={handleSettingsChange}/>
       {/*Version history that maps over the stack allowing the user to click to revert to an appropriate version. Compare versions before accepting changes */}
@@ -113,7 +125,7 @@ const handleRedo = () => {
        <TextCommands  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
        {/*Change Font Family from 64 fonts, Change text and background color from 7 colors, Change font size from 1px to 92px */}
        <TextStyles  darkMode={darkMode} editorState={editorState} handleEditorStateChange={handleEditorStateChange}/>
-         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word Frequency Analysis, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication,  Max & Min Count Checker for Word & Character Limits/Goals with visual indicators*/}
+         {/*Document Naming, Pauseable Session Duration Counter, Flesch Reading Ease Score, Word counter in real time on screen, Word Frequency Analysis, Set Export Format(PDF,HTML,Markdown,&TXT) Word and Character Count (Document and Selected), Sentence, Syllables and Paragraph Counts, Average Characters per Word along with Words per Sentences and Sentences per Paragraph Counts, File Size Indication,  Max & Min Count Checker for Word & Character Limits/Goals with visual indicators*/}
       <DocumentInfo  darkMode={darkMode} ref={documentInfoRef}  documentName={documentName} onDocumentNameChange={handleDocumentNameChange} editorState={editorState} exportFormat={exportFormat} onExportFormatChange={setExportFormat} />
       
         <Button onClick={handleUndo}  style={{ color: undoStack.length > 0 ? (darkMode? 'white': 'black') : 'grey', pointerEvents: undoStack.length > 0 ? 'auto' : 'none' }}>
@@ -129,6 +141,7 @@ const handleRedo = () => {
     {/*Simple text to speech */}
     <TextToSpeech settings={settings} darkMode={darkMode} editorState={editorState}/>
     {darkMode? <Icon icon="ph:moon" onClick={toggleDarkMode}/>:<Icon icon="ph:sun" onClick={toggleDarkMode}/>}
+    </span>
     </span>
 
       <div 

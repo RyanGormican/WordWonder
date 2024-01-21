@@ -9,7 +9,7 @@ import { stateToMarkdown } from 'draft-js-export-markdown';
 const DocumentInfo = ({ darkMode, documentName, onDocumentNameChange, editorState, exportFormat, onExportFormatChange },ref) => {
 const [words, setWords] = useState(0);
   const [totalSyllables, setTotalSyllables] = useState(0);
-
+  const [screenWordCount, setScreenWordCount] = useState(false);
   const [characters, setCharacters] = useState(0);
   const [selectedWords, setSelectedWords] = useState(0);
   const [paragraphs, setParagraphs] = useState(0);
@@ -164,6 +164,10 @@ const handleTextFrequencyMenuClose = () => {
   };
    const handleTextStatsMenuClick = (event) => {
     setTextStatsMenuAnchorEl(event.currentTarget);
+    countWords();
+countCharacters();
+  countSelected();
+ countDocumentStatistics();
   };
    const handleTextStatsMenuClose = (event) => {
     setTextStatsMenuAnchorEl(null);
@@ -181,6 +185,7 @@ const handleTextFrequencyMenuClose = () => {
   }
   };
   const countWords = () => {
+
     const contentState = editorState.getCurrentContent();
     const plainText = contentState.getPlainText();
     const wordCount = plainText
@@ -340,7 +345,14 @@ const getReadabilityLevel = (score) => {
 
 return ( 
 	<div>
-	  <Button onClick={handleDocumentInformationClick}   style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red': isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') }}> Document Information</Button>
+	 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Button onClick={handleDocumentInformationClick} style={{ color: isOverWordLimit || isOverCharacterLimit ? 'red' : isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') }}>
+      Document Information
+    </Button>
+    <span style={{  color: isOverWordLimit || isOverCharacterLimit ? 'red' : isUnderWordLimit || isUnderCharacterLimit ? 'green' :  (darkMode? 'white': 'black') ,display: screenWordCount ? 'inline' : 'none', }}>
+      {selectedWords > 0 ? `${selectedWords}` : `${words}`}
+    </span>
+    </div>
        <Menu
          anchorEl={documentInformationAnchorEl}
           open={Boolean(documentInformationAnchorEl)}
@@ -433,6 +445,13 @@ return (
          </MenuItem>
           <MenuItem>
         {words === 0 || words > 1 ? `${words} words (${selectedWords} selected)` : `${words} word (${selectedWords} selected)`}
+        Show on screen? 
+        <input
+          type="checkbox"
+          checked={screenWordCount}
+          onChange={() => setScreenWordCount(!screenWordCount)}
+         
+        />
         </MenuItem>
         <MenuItem>
         Average Word Length {avgWordLength}
