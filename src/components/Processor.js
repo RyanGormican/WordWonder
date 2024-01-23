@@ -143,7 +143,6 @@ documentInfoRef.current.countWords();
     {darkMode? <Icon icon="ph:moon" onClick={toggleDarkMode}/>:<Icon icon="ph:sun" onClick={toggleDarkMode}/>}
     </span>
     </span>
-
       <div 
       className={`drop-area ${dragging ? 'dragging' : ''}processor`}
       onDragEnter={(e) =>handleDragEnter(e)}
