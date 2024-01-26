@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import Processor from './components/Processor';
 import 'contenido/dist/styles.css';
-
+import {  useSelector } from 'react-redux';
 function App() {
 
  const [darkMode, setDarkMode] = useState(true);
-
+   const editorState = useSelector((state) => state.editor.editorState);
   const toggleDarkMode = () => {
     setDarkMode((prevDarkMode) => !prevDarkMode);
   };
@@ -17,7 +17,7 @@ function App() {
       <div className="title">
       WordWonder
       </div>
-        <Processor darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <Processor darkMode={darkMode} toggleDarkMode={toggleDarkMode} editorState = {editorState}/>
         <div className="links">
           <a href="https://www.linkedin.com/in/ryangormican/">
             <Icon icon="mdi:linkedin" color="#0e76a8" width="60" />

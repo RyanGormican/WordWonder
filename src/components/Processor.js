@@ -17,17 +17,17 @@ import Settings from './Settings';
 import Comments from './Comments';
 import History from './History';
 import 'draft-js/dist/Draft.css'; 
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { updateEditorState } from '../actions/editorActions';
 import {blockRenderer} from './BlockRender'; /* Handles basic display of images and tables. Image resizing within the editor*/
 import { useDragState } from './ProcessorDrag'; /* Drag and drop for images and non styled text import */
-const Processor = ({darkMode, toggleDarkMode}) => {
+const Processor = ({darkMode, toggleDarkMode,editorState}) => {
 const [toolbarVisible, setToolbarVisible] = useState(true); 
     const documentInfoRef = useRef();
      const [settings, setSettings] = useState({ voice: null,pitch: 1.0, speed: 1.0, volume: 1.0,  });
     const { dragging, handleDragEnter, handleDragLeave, handleDragOver, handleDrop } = useDragState();
   const dispatch = useDispatch();
-  const editorState = useSelector((state) => state.editor.editorState);
+
   const [exportFormat, setExportFormat] = useState('pdf');
   const [undoStack, setUndoStack] = useState([]);
   const [versionStack, setVersionStack] = useState([]);
