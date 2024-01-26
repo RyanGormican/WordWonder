@@ -43,7 +43,6 @@ const downloadDocument = () => {
           } else {
           }
       });
-
     if (shouldUnderline && shouldStrikethrough){
         inlineStyleHtml += 'text-decoration: underline line-through;';
     } else if (shouldUnderline) {
