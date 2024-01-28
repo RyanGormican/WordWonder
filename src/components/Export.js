@@ -32,6 +32,7 @@ const downloadDocument = () => {
             inlineStyleHtml += `background-color: ${styleMap[style].backgroundColor};`;
           } 
           }
+
           if (style === 'BOLD') {
             inlineStyleHtml += 'font-weight: bold;';
           } else if (style === 'ITALIC') {
