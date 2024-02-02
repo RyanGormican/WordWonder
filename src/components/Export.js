@@ -57,6 +57,7 @@ const downloadDocument = () => {
         htmlContent += char;
       }
     }
+
     htmlContent += '<br>';
   });
   contentState.getBlockMap().forEach((block) => {
