@@ -43,7 +43,6 @@ const downloadDocument = () => {
         shouldStrikethrough = true;
           } else {
 
-          
           }
       });
     if (shouldUnderline && shouldStrikethrough){
