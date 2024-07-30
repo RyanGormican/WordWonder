@@ -20,6 +20,7 @@
     "draft-js-import-html": "^1.4.1",
     "draft-js-utils": "^1.4.1",
     "draftjs-to-html": "^0.9.1",
+    "firebase": "^10.12.4",
     "html-to-pdfmake": "^2.5.1",
     "html2pdf.js": "^0.10.1",
     "pdfjs-dist": "^4.0.269",
