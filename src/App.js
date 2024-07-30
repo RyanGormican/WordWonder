@@ -22,10 +22,12 @@ function App() {
       <div className="title">
       WordWonder
       </div>
-        <Processor darkMode={darkMode} toggleDarkMode={toggleDarkMode} editorState = {editorState}/>
-         {isModalOpen && (
-          <Feedback  isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
-          )}
+      {!isModalOpen ? (
+  <Processor darkMode={darkMode} toggleDarkMode={toggleDarkMode} editorState={editorState} />
+) : (
+  <Feedback isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+)}
+
         <div className="links">
           <a href="https://www.linkedin.com/in/ryangormican/">
             <Icon icon="mdi:linkedin" color="#0e76a8" width="60" />
